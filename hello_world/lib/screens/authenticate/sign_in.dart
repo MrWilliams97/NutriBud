@@ -1,11 +1,20 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/services/auth.dart';
 
-class Home extends StatefulWidget {
+class SignIn extends StatefulWidget {
+
+  final Function toggleView;
+  SignIn ({this.toggleView});
+
   @override
-  _HomeState createState() => _HomeState();
+  _SignInState createState() => _SignInState();
 }
 
-class _HomeState extends State<Home> {
+class _SignInState extends State<SignIn> {
+
+  final AuthService _authService = AuthService();
+
   bool isLoading = false;
   bool rememberUser = false;
 
@@ -98,7 +107,7 @@ class _HomeState extends State<Home> {
             height: 60.0,
             child: TextField(
                 onChanged: (val) {
-                  setState(() => email = val);
+                  setState(() => email = val.trim());
                 },
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(color: Colors.red, fontSize: 22.0),
@@ -206,6 +215,7 @@ class _HomeState extends State<Home> {
                   style: TextStyle(color: Colors.white, fontSize: 16.0)),
               TextSpan(
                   text: "Sign Up",
+                  recognizer: new TapGestureRecognizer()..onTap = () => widget.toggleView(),
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,
@@ -225,7 +235,7 @@ class _HomeState extends State<Home> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       color: Colors.white,
       onPressed: () async {
-        print("LOGIN button pressed");
+        await _authService.signInEmailPassword(email, password);
       },
     ));
   }
