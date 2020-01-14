@@ -20,7 +20,7 @@ class _FoodDiaryState extends State<FoodDiary> {
             elevation: 0.0,
           ),
           body: Center(
-            child: Text("Welcome to the home screen!"),
+            child: Text("Welcome to the home test screen!"),
           )),
       new Container(
           height: 150.0,
