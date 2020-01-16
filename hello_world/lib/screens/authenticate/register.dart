@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/services/auth.dart';
+import 'package:flutter/gestures.dart';
 
 class Register extends StatefulWidget {
   final Function toggleView;
@@ -38,14 +39,15 @@ class _RegisterState extends State<Register> {
                         Container(
                             padding: EdgeInsets.symmetric(horizontal: 40.0),
                             child: Column(children: <Widget>[
-                              _buildSignInTextWidget(),
+                              _buildRegisterTextWidget(),
                               Padding(padding: EdgeInsets.only(top: 20.0)),
                               _buildEmailWidget(),
                               Padding(padding: EdgeInsets.only(top: 20.0)),
                               Column(
                                 children: <Widget>[
                                   _buildPasswordWidget(),
-                                  _buildRegisterButton()
+                                  _buildRegisterButton(),
+                                  _buildSignInWidget()
                                 ],
                               ),
                             ]))
@@ -57,8 +59,8 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildSignInTextWidget() {
-    return Text("Sign In",
+  Widget _buildRegisterTextWidget() {
+    return Text("Register",
         style: TextStyle(
             fontSize: 30.0,
             color: Colors.white,
@@ -187,5 +189,23 @@ class _RegisterState extends State<Register> {
         }
       },
     ));
+  }
+
+  Widget _buildSignInWidget(){
+    return Container(
+            padding: EdgeInsets.only(top: 20.0),
+            child: RichText(
+                text: TextSpan(children: <TextSpan>[
+              TextSpan(
+                  text: "Already have an account? ",
+                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
+              TextSpan(
+                  text: "Sign In",
+                  recognizer: new TapGestureRecognizer()..onTap = () => widget.toggleView(),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold))
+            ])));
   }
 }

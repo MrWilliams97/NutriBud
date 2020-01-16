@@ -65,6 +65,7 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
     );
   }
 
+  // Contains the Top App Bar's Date, along with Arrow Icons to adjust the date
   Widget _buildChangeDateWidget() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,

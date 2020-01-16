@@ -197,7 +197,7 @@ class _SignInState extends State<SignIn> {
   Widget _buildSignUpWidget() {
     return GestureDetector(
         onTap: () async {
-          print("Sign up button pressed");
+          widget.toggleView();
         },
         child: Container(
             padding: EdgeInsets.only(top: 20.0),
