@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/services/auth.dart';
 
 class SignIn extends StatefulWidget {
-
   final Function toggleView;
-  SignIn ({this.toggleView});
+  SignIn({this.toggleView});
 
   @override
   _SignInState createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-
   final AuthService _authService = AuthService();
 
   bool isLoading = false;
@@ -72,16 +70,15 @@ class _SignInState extends State<SignIn> {
 
   Widget _buildForgotPasswordWidget() {
     return Container(
-                                    alignment: Alignment.centerRight,
-                                    child: FlatButton(
-                                        onPressed: () =>
-                                            print("Forgot password pressed"),
-                                        padding: EdgeInsets.only(right: 5.0),
-                                        child: Text("Forgot password?",
-                                            style: TextStyle(
-                                                fontSize: 18.0,
-                                                fontFamily: "OpenSans",
-                                                color: Colors.white))));
+        alignment: Alignment.centerRight,
+        child: FlatButton(
+            onPressed: () => print("Forgot password pressed"),
+            padding: EdgeInsets.only(right: 5.0),
+            child: Text("Forgot password?",
+                style: TextStyle(
+                    fontSize: 18.0,
+                    fontFamily: "OpenSans",
+                    color: Colors.white))));
   }
 
   Widget _buildEmailWidget() {
@@ -121,42 +118,37 @@ class _SignInState extends State<SignIn> {
   }
 
   Widget _buildPasswordWidget() {
-    return Column(children: <Widget> [Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Padding(
-                                        padding: EdgeInsets.only(left: 12.5),
-                                        child: Text("Password",
-                                            style: TextStyle(
-                                                fontSize: 20.0,
-                                                color: Colors.white,
-                                                fontFamily: "OpenSans",
-                                                fontWeight: FontWeight.bold)))),
-                                Container(
-                                    alignment: Alignment.centerLeft,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(22.0),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 14.0)
-                                      ],
-                                    ),
-                                    height: 60.0,
-                                    child: TextField(
-                                        onChanged: (val) {
-                                          setState(() => password = val);
-                                        },
-                                        obscureText: true,
-                                        style: TextStyle(
-                                            color: Colors.red, fontSize: 22.0),
-                                        decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: "Enter Password",
-                                            hintStyle:
-                                                TextStyle(color: Colors.red),
-                                            prefixIcon: Icon(Icons.lock,
-                                                color: Colors.red))))]);
+    return Column(children: <Widget>[
+      Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+              padding: EdgeInsets.only(left: 12.5),
+              child: Text("Password",
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                      fontFamily: "OpenSans",
+                      fontWeight: FontWeight.bold)))),
+      Container(
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22.0),
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 14.0)],
+          ),
+          height: 60.0,
+          child: TextField(
+              onChanged: (val) {
+                setState(() => password = val);
+              },
+              obscureText: true,
+              style: TextStyle(color: Colors.red, fontSize: 22.0),
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: "Enter Password",
+                  hintStyle: TextStyle(color: Colors.red),
+                  prefixIcon: Icon(Icons.lock, color: Colors.red))))
+    ]);
   }
 
   Widget _buildLogoWidget() {
@@ -177,30 +169,31 @@ class _SignInState extends State<SignIn> {
 
   Widget _buildRememberMeWidget() {
     return Container(
-                                    child: Row(
-                                  children: <Widget>[
-                                    Theme(
-                                        data: Theme.of(context).copyWith(
-                                          unselectedWidgetColor: Colors.white,
-                                        ),
-                                        child: Checkbox(
-                                            value: rememberUser,
-                                            activeColor: Colors.white,
-                                            checkColor: Colors.red,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                rememberUser = !rememberUser;
-                                              });
-                                            })),
-                                    Text("Remember Me",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16.0,
-                                            fontFamily: "OpenSans",
-                                            fontWeight: FontWeight.bold))
-                                  ],
-                                ));
+        child: Row(
+      children: <Widget>[
+        Theme(
+            data: Theme.of(context).copyWith(
+              unselectedWidgetColor: Colors.white,
+            ),
+            child: Checkbox(
+                value: rememberUser,
+                activeColor: Colors.white,
+                checkColor: Colors.red,
+                onChanged: (value) {
+                  setState(() {
+                    rememberUser = !rememberUser;
+                  });
+                })),
+        Text("Remember Me",
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+                fontFamily: "OpenSans",
+                fontWeight: FontWeight.bold))
+      ],
+    ));
   }
+
   Widget _buildSignUpWidget() {
     return GestureDetector(
         onTap: () async {
@@ -215,7 +208,8 @@ class _SignInState extends State<SignIn> {
                   style: TextStyle(color: Colors.white, fontSize: 16.0)),
               TextSpan(
                   text: "Sign Up",
-                  recognizer: new TapGestureRecognizer()..onTap = () => widget.toggleView(),
+                  recognizer: new TapGestureRecognizer()
+                    ..onTap = () => widget.toggleView(),
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,
