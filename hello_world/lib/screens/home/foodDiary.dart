@@ -1,5 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/services/auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
+
+
+Future<Post> fetchPost() async {
+  final response =
+      await http.get('http://10.0.3.2:5000/SampleApiCall');
+
+  if (response.statusCode == 200) {
+    // If the call to the server was successful, parse the JSON.
+    return Post.fromJson(json.decode(response.body));
+  } else {
+    // If that call was not successful, throw an error.
+    throw Exception('Failed to load post');
+  }
+}
+
+
+class Post {
+  final String Calories;
+  final String Fat;
+  final String Cholestrol;
+  final String Sodium;
+  final String Carbohydrates;
+  final String Fiber;
+  final String Sugar;
+  final String Protein;
+  final String Potassium;
+  final String Sugars;
+
+  Post({this.Calories, this.Fat, this.Cholestrol, this.Sodium, this.Carbohydrates, this.Fiber, this.Sugar, this.Protein, this.Potassium, this.Sugars});
+
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      Calories: json['Calories'],
+      Fat: json['Fat'],
+      Cholestrol: json['Cholestrol'],
+      Sodium: json['Sodium'],
+      Carbohydrates: json['Carbohydrates'],
+      Fiber: json['Fiber'],
+      Sugar: json['Sugar'],
+      Protein: json['Protein'],
+      Potassium: json['Potassium'],
+      Sugars: json['Sugars'],
+    );
+  }
+}
+
 
 class FoodDiary extends StatefulWidget {
   @override
@@ -7,6 +56,15 @@ class FoodDiary extends StatefulWidget {
 }
 
 class _FoodDiaryState extends State<FoodDiary> {
+
+Future<Post> post;
+
+  @override
+  void initState() {
+    super.initState();
+    post = fetchPost();
+  }
+
   final AuthService _authService = AuthService();
 
   @override
@@ -20,7 +78,19 @@ class _FoodDiaryState extends State<FoodDiary> {
             elevation: 0.0,
           ),
           body: Center(
-            child: Text("Welcome to the home test screen!"),
+          child: FutureBuilder<Post>(
+future: post,
+builder: (context, snapshot) {
+  if (snapshot.hasData) {
+    return Text('Calories: ${snapshot.data.Calories}\n Fat: ${snapshot.data.Fat}\n Cholestrol: ${snapshot.data.Cholestrol}\n Sodium: ${snapshot.data.Sodium}\n Carbohydrates: ${snapshot.data.Carbohydrates}\n Fiber: ${snapshot.data.Fiber}\n Sugar: ${snapshot.data.Sugar}\n Protein: ${snapshot.data.Protein}\n Potassium: ${snapshot.data.Potassium}\n Sugars: ${snapshot.data.Sugars}\n');
+  } else if (snapshot.hasError) {
+    return Text("${snapshot.error}");
+  }
+
+  // By default, show a loading spinner.
+  return CircularProgressIndicator();
+},
+),
           )),
       new Container(
           height: 150.0,
@@ -45,7 +115,7 @@ class _FoodDiaryState extends State<FoodDiary> {
                       )),
                 ),
               ),)
-              
+
             ],
           ),
           decoration: new BoxDecoration(
