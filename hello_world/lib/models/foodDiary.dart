@@ -1,5 +1,6 @@
 class FoodDiary {
 
+  final String userId;
   final DateTime foodDiaryDate;
   final int savedCalorieGoal;
   final int savedFatGoal;
@@ -7,5 +8,5 @@ class FoodDiary {
   final int savedProteinGoal;
   final List<String> meals;
 
-  FoodDiary({ this.foodDiaryDate, this.savedCalorieGoal, this.savedFatGoal, this.savedCarbGoal, this.savedProteinGoal, this.meals});
+  FoodDiary({ this.userId, this.foodDiaryDate, this.savedCalorieGoal, this.savedFatGoal, this.savedCarbGoal, this.savedProteinGoal, this.meals});
 }

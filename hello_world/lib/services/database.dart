@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   final String uid;
@@ -12,7 +13,8 @@ class DatabaseService {
       Firestore.instance.collection("foodDiaries");
 
   Future updateUserData(DateTime foodDiaryDate) async {
-    return await foodDiariesCollection.document(uid).setData({
+    return await foodDiariesCollection.document(Uuid().v4()).setData({
+      "userId": uid,
       "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiaryDate),
       "savedCalorieGoal": null,
       "savedFatGoal": null,
@@ -24,6 +26,7 @@ class DatabaseService {
 
   List<FoodDiary> _foodDiariesFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
+      var userId = doc.data['userId'];
       var parsedDate = DateTime.parse(doc.data['foodDiaryDate']);
       var savedCalorieGoal = doc.data['savedCalorieGoal'];
       var savedFatGoal = doc.data['savedFatGoal'];
@@ -31,18 +34,14 @@ class DatabaseService {
       var savedProteinGoal = doc.data['savedProteinGoal'];
       var meals = doc.data['meals'];
 
-      if (doc.documentID == uid) {
-        return FoodDiary(
-            foodDiaryDate: parsedDate ?? null,
-            savedCalorieGoal: savedCalorieGoal ?? null,
-            savedFatGoal: savedFatGoal ?? null,
-            savedCarbGoal: savedCarbGoal ?? null,
-            savedProteinGoal: savedProteinGoal ?? null,
-            meals: meals ?? new List<String>()
-        );
-      } else {
-        return null;
-      }
+      return FoodDiary(
+          userId: userId ?? '',
+          foodDiaryDate: parsedDate ?? null,
+          savedCalorieGoal: savedCalorieGoal ?? null,
+          savedFatGoal: savedFatGoal ?? null,
+          savedCarbGoal: savedCarbGoal ?? null,
+          savedProteinGoal: savedProteinGoal ?? null,
+          meals: meals ?? new List<String>());
     }).toList();
   }
 

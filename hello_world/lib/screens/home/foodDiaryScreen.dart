@@ -20,7 +20,6 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final user = Provider.of<User>(context);
     var userId = user.uid;
     return StreamProvider<List<FoodDiary>>.value(
@@ -28,30 +27,10 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
       child: new Container(
           child: new Stack(children: <Widget>[
         Scaffold(
-            body: Center(
-              child: FoodDiaryDetails(foodDiaryDate: diaryDate),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              items: const <BottomNavigationBarItem> [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person), 
-                  title: Text("Sign Out")
-                ), 
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.timeline), 
-                  title: Text("Timeline")
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.games), 
-                  title: Text("GainRivals")
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings), 
-                  title: Text("Account"),
-                )
-              ]
-            ),
+          body: Center(
+            child: FoodDiaryDetails(foodDiaryDate: diaryDate),
+          ),
+          bottomNavigationBar: _buildBottomAppBar(),
         ),
         new Container(
             height: 150.0,
@@ -72,6 +51,73 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
     );
   }
 
+  Widget _buildBottomAppBar() {
+    return BottomAppBar(
+        color: Colors.red,
+        child: new Row(
+          children: <Widget>[
+            new FlatButton(
+              onPressed: () async {
+                await _authService.signOut();
+              },
+              padding: EdgeInsets.only(left: 30, right: 20),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new Icon(
+                    Icons.people,
+                    color: Colors.white,
+                  ),
+                  new Text("Sign Out", style: TextStyle(color: Colors.white))
+                ],
+              ),
+            ),
+            new FlatButton(
+              onPressed: () async {},
+              padding: EdgeInsets.only(left: 20, right: 20),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new Icon(
+                    Icons.timeline,
+                    color: Colors.white,
+                  ),
+                  new Text("Timeline", style: TextStyle(color: Colors.white))
+                ],
+              ),
+            ),
+            new FlatButton(
+              onPressed: () async {},
+              padding: EdgeInsets.only(left: 20, right: 20),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new Icon(
+                    Icons.games,
+                    color: Colors.white,
+                  ),
+                  new Text("GainRivals", style: TextStyle(color: Colors.white))
+                ],
+              ),
+            ),
+            new FlatButton(
+              onPressed: () async {},
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 20),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
+                  new Text("Profile", style: TextStyle(color: Colors.white))
+                ],
+              ),
+            )
+          ],
+        ));
+  }
+
   // Contains the Top App Bar's Date, along with Arrow Icons to adjust the date
   Widget _buildChangeDateWidget() {
     return Row(
@@ -85,11 +131,14 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
               });
             }),
         Material(
-          color: Colors.red,
-          child: Text(
-          DateFormat("yyyy-MM-dd").format(diaryDate),
-          style: TextStyle(color: Colors.white, fontSize: 50, fontWeight: FontWeight.bold),
-        )),
+            color: Colors.red,
+            child: Text(
+              DateFormat("yyyy-MM-dd").format(diaryDate),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold),
+            )),
         GestureDetector(
             child: Icon(Icons.arrow_right, size: 50, color: Colors.white),
             onTap: () {

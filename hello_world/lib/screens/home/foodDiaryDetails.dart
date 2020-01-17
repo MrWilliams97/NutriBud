@@ -19,12 +19,17 @@ class FoodDiaryDetails extends StatelessWidget {
     var userId = user.uid;
 
     foodDiaries = foodDiaries.where((value) => value != null).toList();
-    var foodDiaryForDate = foodDiaries.where((foodDiary) => foodDiary.foodDiaryDate.day == foodDiaryDate.day);
+    var foodDiaryForDate = foodDiaries.where((foodDiary) => foodDiary.foodDiaryDate.day == foodDiaryDate.day
+                                            && foodDiary.userId == userId);
 
-    //If a food diary cannot be found for the given date, add a Food Diary to Firebase
-    if (foodDiaryForDate.length == 0){
+    final now = DateTime.now();
+
+    //If a food diary cannot be found for the current day, add a Food Diary to Firebase
+    if (foodDiaryForDate.length == 0 && foodDiaryDate.month == now.month && foodDiaryDate.day == now.day && foodDiaryDate.year == now.year){
       DatabaseService(uid: userId.toString()).updateUserData(foodDiaryDate);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
+    } else if (foodDiaryForDate.length == 0){
+      return Text("No Food Diary found for this date");
     }
 
     var foodDiary = foodDiaryForDate.first;
@@ -70,7 +75,7 @@ class FoodDiaryDetails extends StatelessWidget {
           children: <Widget>[
             FlatButton.icon(
               onPressed: () {
-
+                
               },
               icon: Icon(Icons.add, size: 26),
               label: Text("Add a Meal", style: TextStyle(fontSize: 24)),
