@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/screens/home/foodDiaryDetails.dart';
 import 'package:hello_world/services/auth.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:hello_world/models/user.dart';
 
 class FoodDiaryScreen extends StatefulWidget {
   @override
@@ -18,13 +20,16 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final user = Provider.of<User>(context);
+    var userId = user.uid;
     return StreamProvider<List<FoodDiary>>.value(
-      value: DatabaseService().foodDiaries,
+      value: DatabaseService(uid: userId).foodDiaries,
       child: new Container(
           child: new Stack(children: <Widget>[
         Scaffold(
             body: Center(
-              child: Text("Welcome to the home screen!"),
+              child: FoodDiaryDetails(foodDiaryDate: diaryDate),
             ),
             bottomNavigationBar: BottomAppBar(
               shape: CircularNotchedRectangle(),
@@ -34,13 +39,17 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    IconButton(
-                      iconSize: 30.0,
-                      icon: Icon(Icons.person),
-                      onPressed: () async {
-                        await _authService.signOut();
-                      }
-                    )
+                    InkWell(
+                      onTap: () {
+
+                      },
+                      child: Column(
+                        children: <Widget>[
+                          Icon(Icons.person, color: Colors.blueGrey, size: 50),
+                          Text("Sign Out", style: TextStyle(color: Colors.blueGrey))
+                        ],
+                      )
+                    ),
                   ],
                 )
               ),

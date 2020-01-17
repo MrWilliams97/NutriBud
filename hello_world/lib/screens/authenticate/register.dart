@@ -59,6 +59,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  // Builds Register Text Widget
   Widget _buildRegisterTextWidget() {
     return Text("Register",
         style: TextStyle(
@@ -68,6 +69,7 @@ class _RegisterState extends State<Register> {
             fontWeight: FontWeight.bold));
   }
 
+  // Builds the Logo at the top of the page
   Widget _buildLogoWidget() {
     return Expanded(
       flex: 1,
@@ -84,6 +86,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  //Builds Email Widget. Contains validation for email address.
   Widget _buildEmailWidget() {
     return Column(
       children: <Widget>[
@@ -127,6 +130,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
+  // Builds Password Enter Widget. Contains validation for password length.
   Widget _buildPasswordWidget() {
     return Column(children: <Widget>[
       Align(
@@ -168,6 +172,7 @@ class _RegisterState extends State<Register> {
     ]);
   }
 
+  //Builds the Register Button. Checks validation for Email and Password based on rules defined for them.
   Widget _buildRegisterButton() {
     return Container(
         child: RaisedButton(
@@ -191,6 +196,7 @@ class _RegisterState extends State<Register> {
     ));
   }
 
+  // Builds Text that brings you back to Sign In page
   Widget _buildSignInWidget(){
     return Container(
             padding: EdgeInsets.only(top: 20.0),
