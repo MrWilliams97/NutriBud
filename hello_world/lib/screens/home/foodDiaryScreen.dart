@@ -31,28 +31,26 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
             body: Center(
               child: FoodDiaryDetails(foodDiaryDate: diaryDate),
             ),
-            bottomNavigationBar: BottomAppBar(
-              shape: CircularNotchedRectangle(),
-              child: Container(
-                height: 75,
-                child: Row (
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    InkWell(
-                      onTap: () {
-
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Icon(Icons.person, color: Colors.blueGrey, size: 50),
-                          Text("Sign Out", style: TextStyle(color: Colors.blueGrey))
-                        ],
-                      )
-                    ),
-                  ],
+            bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem> [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person), 
+                  title: Text("Sign Out")
+                ), 
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.timeline), 
+                  title: Text("Timeline")
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.games), 
+                  title: Text("GainRivals")
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings), 
+                  title: Text("Account"),
                 )
-              ),
+              ]
             ),
         ),
         new Container(
