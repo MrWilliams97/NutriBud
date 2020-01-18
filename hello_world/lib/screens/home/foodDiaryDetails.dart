@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:hello_world/models/foodDiary.dart';
-import 'package:hello_world/screens/home/meal.dart';
+import 'package:hello_world/screens/home/addMeal.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -85,7 +85,7 @@ class FoodDiaryDetails extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Meal()),
+                  MaterialPageRoute(builder: (context) => AddMeal()),
                 );
               },
               icon: Icon(Icons.add, size: 26),
