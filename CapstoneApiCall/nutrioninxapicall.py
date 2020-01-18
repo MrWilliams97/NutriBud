@@ -70,14 +70,23 @@ def salvador(foodId):
     return x
 
 
-@app.route("/sendImage/<UUID>")
-def sendImage(UUID):
+@app.route("/sendImage/<base64Image>/<fileName>")
+def sendImage(base64Image, fileName):
+    # print(base64Image)
+    # print("/n")
+    print("========== THIS HAD BETTER FUCKING WORK ============")
+    # print("/n")
+    # print("/n")
+    # print(fileName)
+    # print("/n")
+    # print("/n")
+    # print("/n")
     return "Hello, World!"
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
 
 
 

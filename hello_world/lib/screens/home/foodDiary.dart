@@ -120,6 +120,16 @@ class _FoodDiaryState extends State<FoodDiary> {
     if(imageFile == null) {
       return Text("No Image Selected:");
     } else {
+
+      String base64Image = base64Encode(imageFile.readAsBytesSync());
+      String fileName = imageFile.path.split("/").last;
+
+      http.get('http://10.0.3.2:5000/SampleApiCall/' + 'fakedata' + '/' + 'whatupsquad').then((res) {
+        print(res.statusCode);
+      }).catchError((err) {
+        print(err);
+      });
+
       return Image.file(imageFile, width: 400, height: 400);
     }
   }
