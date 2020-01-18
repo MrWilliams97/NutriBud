@@ -25,6 +25,8 @@ dependencies:
   camera:
   path_provider:
   path:
+  # open_camera:
+  image:picker:
   cupertino_icons: ^0.1.2
   firebase_auth: ^0.15.3
   cloud_firestore: ^0.13.0+1

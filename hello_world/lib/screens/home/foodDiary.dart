@@ -10,11 +10,48 @@ import 'text_and_icon_button.dart';
 
 
 
-List<CameraDescription> cameras;
-Future<Null> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
+class CameraMgr{
+  CameraMgr._();
+  CameraController _cameraCtrl;
+
+  Future<CameraController> openCamera() async {
+    CameraDescription cameraDescription;
+    List<CameraDescription> cameras = await availableCameras();
+    for (CameraDescription xx in cameras){
+      if(xx.lensDirection==CameraLensDirection.front){
+        cameraDescription = xx;
+        break;
+      }
+    }
+    if(cameraDescription==null){
+      return null;
+    }
+    if (_cameraCtrl != null) {
+      return _cameraCtrl;
+    }
+    _cameraCtrl = new CameraController(cameraDescription, ResolutionPreset.low)..addListener(() {
+      if (_cameraCtrl.value.hasError) {
+        print("");
+      }
+    });
+
+    try {
+      await _cameraCtrl.initialize();
+    } on CameraException catch (e) {
+      print(e);
+    }
+    return _cameraCtrl;
+  }
+  close()async {
+    if (_cameraCtrl != null) {
+      return _cameraCtrl;
+    }
+    _cameraCtrl = null;
+  }
 }
+CameraMgr myCameraMgr = new CameraMgr._();
+
+
 
 
 
@@ -82,7 +119,14 @@ class _FoodDiaryState extends State<FoodDiary> {
   @override
   void initState() {
     super.initState();
+    myCameraMgr.openCamera();
     // post = fetchPost();
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    myCameraMgr.close();
   }
 
   final AuthService _authService = AuthService();
@@ -140,7 +184,18 @@ class _FoodDiaryState extends State<FoodDiary> {
           color: Colors.red,
           icon: Icon(Icons.add_a_photo), //`Icon` to display
           label: Text('Add a Photo'), //`Text` to display
-          onPressed: () {
+          onPressed: () async{
+                CameraController ctrl = await myCameraMgr.openCamera();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext _){
+                      return new Container(
+                        height: 1600,
+                        width: 1600,
+                        child: new DialogCamera(ctrl),
+                      );
+                    }
+                  );
             setState(() {
               post = fetchPost();
             });
@@ -148,11 +203,6 @@ class _FoodDiaryState extends State<FoodDiary> {
             //...
           },
         ),
-
-
-
-
-
 
 
 
@@ -176,5 +226,17 @@ class _FoodDiaryState extends State<FoodDiary> {
             ),
           )),
     ]));
+  }
+}
+
+class DialogCamera extends StatelessWidget{
+  DialogCamera(this.ctrl);
+  final CameraController ctrl;
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      // margin: new EdgeInsets.all(150.0),
+      child: new CameraPreview(this.ctrl),
+    );
   }
 }
