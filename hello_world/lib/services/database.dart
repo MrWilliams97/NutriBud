@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/gainRivalsModel.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,6 +13,9 @@ class DatabaseService {
   final CollectionReference foodDiariesCollection =
       Firestore.instance.collection("foodDiaries");
 
+  final CollectionReference gainRivalsCollection =
+    Firestore.instance.collection("gainRivalsGame");
+
   Future updateUserData(DateTime foodDiaryDate) async {
     return await foodDiariesCollection.document(Uuid().v4()).setData({
       "userId": uid,
@@ -21,6 +25,12 @@ class DatabaseService {
       "savedCarbGoal": null,
       "savedProteinGoal": null,
       "meals": null,
+    });
+  }
+
+  Future addGainRivalsGame(GainRivalsModel model) async{
+    return await gainRivalsCollection.document(model.gameName).setData({
+      "users": model.users
     });
   }
 
@@ -45,8 +55,20 @@ class DatabaseService {
     }).toList();
   }
 
+  List<GainRivalsModel> _gainRivalsFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.documents.map((doc) {
+      //Create GainRivalsModels out of the documents from Firestore
+      var userIds = doc.data['userIds'];
+
+      return GainRivalsModel(gameName: doc.documentID, users: userIds);
+    }).toList();
+  }
   // Get FoodDiaries stream
   Stream<List<FoodDiary>> get foodDiaries {
     return foodDiariesCollection.snapshots().map(_foodDiariesFromSnapshot);
+  }
+
+  Stream<List<GainRivalsModel>> get gainRivalsGames {
+    return gainRivalsCollection.snapshots().map(_gainRivalsFromSnapshot);
   }
 }
