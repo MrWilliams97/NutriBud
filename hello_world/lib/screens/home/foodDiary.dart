@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/services/auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'text_and_icon_button.dart';
+
+
+
+
+
+List<CameraDescription> cameras;
+Future<Null> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
+}
+
+
 
 
 Future<Post> fetchPost() async {
-  final response =
-      await http.get('http://10.0.3.2:5000/SampleApiCall');
+  final response = await http.get('http://10.0.3.2:5000/SampleApiCall/tomato');
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON.
@@ -17,7 +30,6 @@ Future<Post> fetchPost() async {
     throw Exception('Failed to load post');
   }
 }
-
 
 class Post {
   final String Calories;
@@ -31,7 +43,17 @@ class Post {
   final String Potassium;
   final String Sugars;
 
-  Post({this.Calories, this.Fat, this.Cholestrol, this.Sodium, this.Carbohydrates, this.Fiber, this.Sugar, this.Protein, this.Potassium, this.Sugars});
+  Post(
+      {this.Calories,
+      this.Fat,
+      this.Cholestrol,
+      this.Sodium,
+      this.Carbohydrates,
+      this.Fiber,
+      this.Sugar,
+      this.Protein,
+      this.Potassium,
+      this.Sugars});
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
@@ -49,20 +71,18 @@ class Post {
   }
 }
 
-
 class FoodDiary extends StatefulWidget {
   @override
   _FoodDiaryState createState() => _FoodDiaryState();
 }
 
 class _FoodDiaryState extends State<FoodDiary> {
-
-Future<Post> post;
+  Future<Post> post;
 
   @override
   void initState() {
     super.initState();
-    post = fetchPost();
+    // post = fetchPost();
   }
 
   final AuthService _authService = AuthService();
@@ -78,55 +98,83 @@ Future<Post> post;
             elevation: 0.0,
           ),
           body: Center(
-          child: FutureBuilder<Post>(
-future: post,
-builder: (context, snapshot) {
-  if (snapshot.hasData) {
-    return Text('Calories: ${snapshot.data.Calories}\n Fat: ${snapshot.data.Fat}\n Cholestrol: ${snapshot.data.Cholestrol}\n Sodium: ${snapshot.data.Sodium}\n Carbohydrates: ${snapshot.data.Carbohydrates}\n Fiber: ${snapshot.data.Fiber}\n Sugar: ${snapshot.data.Sugar}\n Protein: ${snapshot.data.Protein}\n Potassium: ${snapshot.data.Potassium}\n Sugars: ${snapshot.data.Sugars}\n');
-  } else if (snapshot.hasError) {
-    return Text("${snapshot.error}");
-  }
+            child: Column(
+              children: <Widget>[
+                new Container(
+                    height: 150.0,
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 20.0, left: 10.0),
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Center(
+                              child: Ink(
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.red,
+                                    shape: CircleBorder(),
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(Icons.arrow_back),
+                                    color: Colors.white,
+                                    onPressed: () async {
+                                      await _authService.signOut();
+                                    },
+                                  )),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    decoration: new BoxDecoration(
+                        image: DecorationImage(
+                          image: ExactAssetImage("assets/images/food.jpg"),
+                          fit: BoxFit.cover,
+                        ),
+                        boxShadow: [new BoxShadow(blurRadius: 40.0)],
+                        borderRadius: new BorderRadius.vertical(
+                            bottom: new Radius.elliptical(
+                                MediaQuery.of(context).size.width, 100.0)))),
+                
+        FlatButton.icon(
+          color: Colors.red,
+          icon: Icon(Icons.add_a_photo), //`Icon` to display
+          label: Text('Add a Photo'), //`Text` to display
+          onPressed: () {
+            setState(() {
+              post = fetchPost();
+            });
+            //Code to execute when Floating Action Button is clicked
+            //...
+          },
+        ),
 
-  // By default, show a loading spinner.
-  return CircularProgressIndicator();
-},
-),
+
+
+
+
+
+
+
+// CameraApp(),
+
+                FutureBuilder<Post>(
+                  future: post,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(
+                          'Calories: ${snapshot.data.Calories}\n Fat: ${snapshot.data.Fat}\n Cholestrol: ${snapshot.data.Cholestrol}\n Sodium: ${snapshot.data.Sodium}\n Carbohydrates: ${snapshot.data.Carbohydrates}\n Fiber: ${snapshot.data.Fiber}\n Sugar: ${snapshot.data.Sugar}\n Protein: ${snapshot.data.Protein}\n Potassium: ${snapshot.data.Potassium}\n Sugars: ${snapshot.data.Sugars}\n');
+                    } else if (snapshot.hasError) {
+                      return Text("${snapshot.error}");
+                    }
+
+                    // By default, show a loading spinner.
+                    return CircularProgressIndicator();
+                  },
+                )
+              ],
+            ),
           )),
-      new Container(
-          height: 150.0,
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 20.0, left: 10.0),
-                child: Material(
-                type: MaterialType.transparency,
-                child: Center(
-                  child: Ink(
-                      decoration: const ShapeDecoration(
-                        color: Colors.red,
-                        shape: CircleBorder(),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back),
-                        color: Colors.white,
-                        onPressed: () async {
-                          await _authService.signOut();
-                        },
-                      )),
-                ),
-              ),)
-
-            ],
-          ),
-          decoration: new BoxDecoration(
-              image: DecorationImage(
-                image: ExactAssetImage("assets/images/food.jpg"),
-                fit: BoxFit.cover,
-              ),
-              boxShadow: [new BoxShadow(blurRadius: 40.0)],
-              borderRadius: new BorderRadius.vertical(
-                  bottom: new Radius.elliptical(
-                      MediaQuery.of(context).size.width, 100.0)))),
     ]));
   }
 }

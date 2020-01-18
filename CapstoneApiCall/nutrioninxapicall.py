@@ -17,11 +17,12 @@ app = Flask(__name__)
 def home():
     return "Hello, World!"
 
-@app.route("/SampleApiCall")
-def salvador():
+@app.route("/SampleApiCall/<foodId>")
+def salvador(foodId):
 
     #classification recieved from model*****this must be given/taken from the ML model
     label  = "grilled%20cheese"
+    # label = foodId
 
     #url used to get common and branded food items json file
     url = "https://trackapi.nutritionix.com/v2/search/instant?query="+str(label)
@@ -34,6 +35,7 @@ def salvador():
 
     r = requests.get(url = url, headers = headers)
     data = r.json()
+    # return data
     name = data['common'][0]['food_name']
 
 
@@ -41,6 +43,7 @@ def salvador():
     # sending post request and saving response as response object
     r = requests.post(url = API_ENDPOINT, json = params, headers = headers)
     data = r.json()
+    # return data
 
     servings = 1
 
@@ -104,6 +107,7 @@ def getMacros(name):
     # sending post request and saving response as response object
     r = requests.post(url = API_ENDPOINT, json = params, headers = headers)
     data = r.json()
+
 
 
     print(str(data['foods'][0]['serving_unit']))
