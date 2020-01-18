@@ -6,56 +6,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'text_and_icon_button.dart';
 
-
-
-
-
-class CameraMgr{
-  CameraMgr._();
-  CameraController _cameraCtrl;
-
-  Future<CameraController> openCamera() async {
-    CameraDescription cameraDescription;
-    List<CameraDescription> cameras = await availableCameras();
-    for (CameraDescription xx in cameras){
-      if(xx.lensDirection==CameraLensDirection.front){
-        cameraDescription = xx;
-        break;
-      }
-    }
-    if(cameraDescription==null){
-      return null;
-    }
-    if (_cameraCtrl != null) {
-      return _cameraCtrl;
-    }
-    _cameraCtrl = new CameraController(cameraDescription, ResolutionPreset.low)..addListener(() {
-      if (_cameraCtrl.value.hasError) {
-        print("");
-      }
-    });
-
-    try {
-      await _cameraCtrl.initialize();
-    } on CameraException catch (e) {
-      print(e);
-    }
-    return _cameraCtrl;
-  }
-  close()async {
-    if (_cameraCtrl != null) {
-      return _cameraCtrl;
-    }
-    _cameraCtrl = null;
-  }
-}
-CameraMgr myCameraMgr = new CameraMgr._();
-
-
-
-
-
-
 Future<Post> fetchPost() async {
   final response = await http.get('http://10.0.3.2:5000/SampleApiCall/tomato');
 
@@ -119,17 +69,44 @@ class _FoodDiaryState extends State<FoodDiary> {
   @override
   void initState() {
     super.initState();
-    myCameraMgr.openCamera();
     // post = fetchPost();
   }
 
-  @override
-  void dispose(){
-    super.dispose();
-    myCameraMgr.close();
+  final AuthService _authService = AuthService();
+
+
+  _openGallery() {
+
   }
 
-  final AuthService _authService = AuthService();
+  _openCamera() {
+
+  }
+
+
+  Future<void> _showChoiceDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+                child: ListBody(
+              children: <Widget>[
+                GestureDetector(
+                    child: Text("Gallery"),
+                    onTap: () {
+                      _openGallery();
+                    }),
+                GestureDetector(
+                    child: Text("Gallery"),
+                    onTap: () {
+                      _openCamera();
+                    })
+              ],
+            )),
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,32 +156,20 @@ class _FoodDiaryState extends State<FoodDiary> {
                         borderRadius: new BorderRadius.vertical(
                             bottom: new Radius.elliptical(
                                 MediaQuery.of(context).size.width, 100.0)))),
-                
-        FlatButton.icon(
-          color: Colors.red,
-          icon: Icon(Icons.add_a_photo), //`Icon` to display
-          label: Text('Add a Photo'), //`Text` to display
-          onPressed: () async{
-                CameraController ctrl = await myCameraMgr.openCamera();
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext _){
-                      return new Container(
-                        height: 1600,
-                        width: 1600,
-                        child: new DialogCamera(ctrl),
-                      );
-                    }
-                  );
-            setState(() {
-              post = fetchPost();
-            });
-            //Code to execute when Floating Action Button is clicked
-            //...
-          },
-        ),
 
-
+                FlatButton.icon(
+                  color: Colors.red,
+                  icon: Icon(Icons.add_a_photo), //`Icon` to display
+                  label: Text('Add a Photo'), //`Text` to display
+                  onPressed: () {
+                    _showChoiceDialog(context);
+                    setState(() {
+                      post = fetchPost();
+                    });
+                    //Code to execute when Floating Action Button is clicked
+                    //...
+                  },
+                ),
 
 // CameraApp(),
 
@@ -226,17 +191,5 @@ class _FoodDiaryState extends State<FoodDiary> {
             ),
           )),
     ]));
-  }
-}
-
-class DialogCamera extends StatelessWidget{
-  DialogCamera(this.ctrl);
-  final CameraController ctrl;
-  @override
-  Widget build(BuildContext context) {
-    return new Container(
-      // margin: new EdgeInsets.all(150.0),
-      child: new CameraPreview(this.ctrl),
-    );
   }
 }
