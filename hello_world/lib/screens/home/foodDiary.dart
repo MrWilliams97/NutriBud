@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/services/auth.dart';
 import 'package:http/http.dart' as http;
-import 'package:camera/camera.dart';
+// import 'package:camera/camera.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 import 'text_and_icon_button.dart';
+import 'package:image_picker/image_picker.dart';
 
 Future<Post> fetchPost() async {
   final response = await http.get('http://10.0.3.2:5000/SampleApiCall/tomato');
@@ -79,8 +81,14 @@ class _FoodDiaryState extends State<FoodDiary> {
 
   }
 
-  _openCamera() {
+  File imageFile;
 
+  _openCamera(BuildContext context) async {
+    var picture = await ImagePicker.pickImage(source: ImageSource.camera);
+    this.setState(() {
+      imageFile = picture;
+    });
+    Navigator.of(context).pop();
   }
 
 
@@ -98,14 +106,22 @@ class _FoodDiaryState extends State<FoodDiary> {
                       _openGallery();
                     }),
                 GestureDetector(
-                    child: Text("Gallery"),
+                    child: Text("Camera"),
                     onTap: () {
-                      _openCamera();
+                      _openCamera(context);
                     })
               ],
             )),
           );
         });
+  }
+
+  Widget _decideImageView() {
+    if(imageFile == null) {
+      return Text("No Image Selected:");
+    } else {
+      return Image.file(imageFile, width: 400, height: 400);
+    }
   }
 
   @override
@@ -172,6 +188,7 @@ class _FoodDiaryState extends State<FoodDiary> {
                 ),
 
 // CameraApp(),
+_decideImageView(),
 
                 FutureBuilder<Post>(
                   future: post,
