@@ -21,6 +21,10 @@ class _AddMealState extends State<AddMeal> {
             child: Column(
               children: <Widget>[
                 _buildButton(),
+                Divider(
+                  color: Colors.red,
+                  thickness: 10,
+                ),
                 _buildFoodTable(),
                 //adds a red line to seperate food list item from summary
                 Divider(
