@@ -77,20 +77,20 @@ class _SearchFoodState extends State<SearchFood> {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      List<dynamic> searchOptions = json.decode(response.body);
+      Map<String, dynamic> searchOptions = json.decode(response.body.toString());
       
       Food food = new Food(
-        servingQuantity: searchOptions[0]['ServingQuantity'],
-        servingUnit: searchOptions[0]['ServingUnit'],
-        calories: searchOptions[0]['Calories'],
-        fat: searchOptions[0]['Fat'],
-        cholestrol: searchOptions[0]['Cholestrol'],
-        sodium: searchOptions[0]['Sodium'],
-        carbohydrates: searchOptions[0]['Carbohydrates'],
-        fiber: searchOptions[0]['Fiber'],
-        sugar: searchOptions[0]['Sugar'],
-        protein: searchOptions[0]['Protein'],
-        potassium: searchOptions[0]['Potassium']
+        servingQuantity: double.parse(searchOptions['ServingQuantity'] == "None" ? "0": searchOptions['ServingQuantity']),
+        servingUnit: searchOptions['ServingUnit'],
+        calories: double.parse(searchOptions['Calories'] == "None" ? "0": searchOptions['Calories']),
+        fat: double.parse(searchOptions['Fat'] == "None" ? "0": searchOptions['Fat']),
+        cholestrol: double.parse(searchOptions['Cholestrol'] == "None" ? "0": searchOptions['Cholestrol']),
+        sodium: double.parse(searchOptions['Sodium'] == "None" ? "0": searchOptions['Sodium']),
+        carbohydrates: double.parse(searchOptions['Carbohydrates'] == "None" ? "0": searchOptions['Carbohydrates']),
+        fiber: double.parse(searchOptions['Fiber'] == "None" ? "0": searchOptions['Fiber']),
+        sugar: double.parse(searchOptions['Sugar'] == "None" ? "0": searchOptions['Sugar']),
+        protein: double.parse(searchOptions['Protein'] == "None" ? "0": searchOptions['Protein']),
+        potassium: double.parse(searchOptions['Potassium'] == "None" ? "0": searchOptions['Potassium'])
       );
 
       return food;
