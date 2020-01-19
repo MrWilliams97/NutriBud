@@ -29,6 +29,9 @@ class DatabaseService {
   }
 
   Future addGainRivalsGame(GainRivalsModel model) async{
+    List<dynamic> swag = new List<dynamic>();
+    
+
     return await gainRivalsCollection.document(model.gameName).setData({
       "users": model.users
     });

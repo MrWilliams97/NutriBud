@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hello_world/screens/home/addFood.dart';
+import 'package:hello_world/screens/home/addManualFood/searchFood.dart';
 
 class AddMeal extends StatefulWidget {
   @override
@@ -77,7 +77,7 @@ class _AddMealState extends State<AddMeal> {
                     // Go to search screen
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddFood()),
+                      MaterialPageRoute(builder: (context) => SearchFood()),
                     );
                   } else if (newValue == "Barcode") {
                     // Go to barcode screen
