@@ -4,6 +4,13 @@ import 'package:hello_world/screens/home/addManualFood/addFood.dart';
 import 'package:hello_world/screens/home/addManualFood/searchFood.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter/services.dart'; // show platform exception
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
+import 'package:uuid/uuid.dart';
 
 class AddMeal extends StatefulWidget {
   final String foodDiaryId;
@@ -17,6 +24,7 @@ class AddMeal extends StatefulWidget {
 class _AddMealState extends State<AddMeal> {
   //THIS WILL BE STORED IN THE DATABASE
   List<DataRow> foodsDisplay = [];
+  var result = "";
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +34,8 @@ class _AddMealState extends State<AddMeal> {
     if (foods != null) {
       if (foods.length > 0) {
         foodsDisplay = [];
-        foodsForMeal = foods.where((food) => food.mealId == widget.mealId).toList();
+        foodsForMeal =
+            foods.where((food) => food.mealId == widget.mealId).toList();
         if (foodsForMeal.length > 0) {
           // Add this meal to the database and display foods
           for (var food in foodsForMeal) {
@@ -92,7 +101,7 @@ class _AddMealState extends State<AddMeal> {
                 iconSize: 24,
                 elevation: 16,
                 style: TextStyle(color: Colors.black),
-                onChanged: (String newValue) {
+                onChanged: (String newValue) async {
                   if (newValue == "Camera") {
                     // Go to camera screen
                     setState(() {
@@ -107,10 +116,16 @@ class _AddMealState extends State<AddMeal> {
                               SearchFood(mealId: widget.mealId),
                         ));
                   } else if (newValue == "Barcode") {
-                    // Go to barcode screen
-                    setState(() {
-                      _addFoodItem(new Food());
-                    });
+                    //Pushes Barcode Widget
+                    await _scanQR();
+                    var food = await fetchUpc(result);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddFood(food: food)),
+                    );
+
                   }
                 },
                 items: [
@@ -203,7 +218,7 @@ class _AddMealState extends State<AddMeal> {
     double proteinSum = 0;
     double potassiumSum = 0;
 
-    for(var food in foods){
+    for (var food in foods) {
       calorieSum += food.calories;
       fatSum += food.fat;
       cholesterolSum += food.cholesterol;
@@ -235,64 +250,159 @@ class _AddMealState extends State<AddMeal> {
                           fontWeight: FontWeight.bold, fontSize: 25))),
             ],
             rows: [
-              DataRow(cells: [
-                DataCell(Text('Calories')),
-                DataCell(
-                  Text(calorieSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Fat')),
-                DataCell(
-                  Text(fatSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Cholesterol')),
-                DataCell(
-                  Text(cholesterolSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Sodium')),
-                DataCell(
-                  Text(sodiumSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Carbohydrates')),
-                DataCell(
-                  Text(carbohydratesSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Fiber')),
-                DataCell(
-                  Text(fiberSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Sugar')),
-                DataCell(
-                  Text(sugarSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Protein')),
-                DataCell(
-                  Text(proteinSum.toString()),
-                ),
-              ],),
-              DataRow(cells: [
-                DataCell(Text('Potassium')),
-                DataCell(
-                  Text(potassiumSum.toString()),
-                ),
-              ],),
+              DataRow(
+                cells: [
+                  DataCell(Text('Calories')),
+                  DataCell(
+                    Text(calorieSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Fat')),
+                  DataCell(
+                    Text(fatSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Cholesterol')),
+                  DataCell(
+                    Text(cholesterolSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Sodium')),
+                  DataCell(
+                    Text(sodiumSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Carbohydrates')),
+                  DataCell(
+                    Text(carbohydratesSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Fiber')),
+                  DataCell(
+                    Text(fiberSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Sugar')),
+                  DataCell(
+                    Text(sugarSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Protein')),
+                  DataCell(
+                    Text(proteinSum.toString()),
+                  ),
+                ],
+              ),
+              DataRow(
+                cells: [
+                  DataCell(Text('Potassium')),
+                  DataCell(
+                    Text(potassiumSum.toString()),
+                  ),
+                ],
+              ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Future<Food> fetchUpc(String upc) async {
+    // Need to replace with ngrok for now
+    var url = "http://10.0.3.2:5000/retrieveUpc/" + upc;
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> searchOptions =
+          json.decode(response.body.toString());
+
+      Food food = new Food(
+        mealId: widget.mealId,
+        foodId: Uuid().v4(),
+        brandName: searchOptions['BrandName'],
+        foodName: searchOptions['FoodName'],
+        servingQuantity: double.parse(searchOptions['ServingQuantity'] == "None"
+            ? "0"
+            : searchOptions['ServingQuantity']),
+        servingUnit: searchOptions['ServingUnit'],
+        calories: double.parse(searchOptions['Calories'] == "None"
+            ? "0"
+            : searchOptions['Calories']),
+        fat: double.parse(
+            searchOptions['Fat'] == "None" ? "0" : searchOptions['Fat']),
+        cholesterol: double.parse(searchOptions['Cholestrol'] == "None"
+            ? "0"
+            : searchOptions['Cholestrol']),
+        sodium: double.parse(
+            searchOptions['Sodium'] == "None" ? "0" : searchOptions['Sodium']),
+        carbohydrates: double.parse(searchOptions['Carbohydrates'] == "None"
+            ? "0"
+            : searchOptions['Carbohydrates']),
+        fiber: double.parse(
+            searchOptions['Fiber'] == "None" ? "0" : searchOptions['Fiber']),
+        sugar: double.parse(
+            searchOptions['Sugar'] == "None" ? "0" : searchOptions['Sugar']),
+        protein: double.parse(searchOptions['Protein'] == "None"
+            ? "0"
+            : searchOptions['Protein']),
+        potassium: double.parse(searchOptions['Potassium'] == "None"
+            ? "0"
+            : searchOptions['Potassium']),
+      );
+
+      return food;
+    } else {
+      throw Exception("Failed to retrieve search results");
+    }
+  }
+
+  Future _scanQR() async {
+    try {
+      String qrResult = await BarcodeScanner.scan();
+      setState(() {
+        result = qrResult;
+      });
+    } on PlatformException catch (e) {
+      // ex user denies camera permissions?
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        setState(() {
+          result = "Camera permission was denied";
+        });
+      } else {
+        setState(() {
+          result = "Unknown Error $e";
+        });
+      }
+    } on FormatException {
+      setState(() {
+        result = "Back button was pressed before scanning";
+      });
+    } catch (e) {
+      setState(() {
+        result = "Unknown Error $e";
+      });
+    }
   }
 }

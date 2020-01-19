@@ -131,7 +131,35 @@ def retrieveFood(foodId):
     }
     return x
     
+@app.route("/retrieveUpc/<upc>")
+def retrieveUpc(upc):
+    url = "https://trackapi.nutritionix.com/v2/search/item?upc="+upc
 
+    headers = {'content-type': 'application/json', 'x-app-id' : ACCESS_KEY, 'x-app-key' : SECRET_KEY, 'x-remote-user-id':'0'}
+
+    r = requests.get(url = url, headers = headers)
+    data = r.json()
+    
+    x = {
+      "BrandName": str(data['foods'][0]['brand_name']),
+      "FoodName": str(data['foods'][0]['food_name']),
+      "ServingQuantity": str(data['foods'][0]['serving_qty']),
+      "ServingUnit": str(data['foods'][0]['serving_unit']),
+      "Calories": str(data['foods'][0]['nf_calories']),
+      "Fat": str(data['foods'][0]['nf_total_fat']),
+      "Cholestrol": str(data['foods'][0]['nf_cholesterol']),
+      "Sodium": str(data['foods'][0]['nf_sodium']),
+      "Carbohydrates": str(data['foods'][0]['nf_total_carbohydrate']),
+      "Fiber": str(data['foods'][0]['nf_dietary_fiber']),
+      "Sugar": str(data['foods'][0]['nf_sugars']),
+      "Protein": str(data['foods'][0]['nf_protein']),
+      "Potassium": str(data['foods'][0]['nf_potassium']),
+    }
+    return x
+    
+
+
+    
 class Object:
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, 

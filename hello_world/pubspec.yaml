@@ -29,6 +29,7 @@ dependencies:
   provider: ^4.0.1
   uuid: 2.0.4
   intl: ^0.15.2
+  barcode_scan:
   
 
 dev_dependencies:
