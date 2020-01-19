@@ -1,14 +1,16 @@
 import "package:flutter/material.dart";
+import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/meal.dart';
 import 'package:hello_world/screens/home/addMeal.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/models/user.dart';
+import 'package:uuid/uuid.dart';
 
 class FoodDiaryDetails extends StatelessWidget {
   final DateTime foodDiaryDate;
-
   FoodDiaryDetails({this.foodDiaryDate});
 
   @override
@@ -30,7 +32,9 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.month == now.month &&
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
-      DatabaseService(uid: userId.toString()).updateUserData(foodDiaryDate);
+      var foodDiaryId = Uuid().v4.toString();
+      DatabaseService(uid: userId.toString())
+          .updateUserData(foodDiaryDate, foodDiaryId);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
@@ -38,7 +42,38 @@ class FoodDiaryDetails extends StatelessWidget {
 
     var foodDiary = foodDiaryForDate.first;
 
-    return Column(
+    var meals = Provider.of<List<Meal>>(context);
+    var mealsDisplay = <DataRow>[];
+
+    if (meals != null) {
+      var mealsForFoodDiary =
+          meals.where((meal) => meal.foodDiaryId == foodDiary.foodDiaryId);
+
+      if (mealsForFoodDiary.length > 0) {
+        int count = 1;
+        for (var meal in mealsForFoodDiary) {
+          mealsDisplay.add(DataRow(cells: [
+            DataCell(Text("Meal #" + count.toString())),
+            DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      settings: RouteSettings(name: "/AddMeal"),
+                      builder: (context) => StreamProvider<List<Food>>.value(
+                          value: DatabaseService(uid: userId).foods,
+                          child: AddMeal(
+                            foodDiaryId: foodDiary.foodDiaryId,
+                            mealId: meal.mealId,
+                          )),
+                    ));
+              })
+          ]));
+        }
+      }
+    }
+
+    return ListView(
       children: <Widget>[
         Padding(padding: EdgeInsets.only(top: 200)),
         Row(
@@ -84,15 +119,33 @@ class FoodDiaryDetails extends StatelessWidget {
             FlatButton.icon(
               onPressed: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddMeal()),
-                );
+                    context,
+                    MaterialPageRoute(
+                      settings: RouteSettings(name: "/AddMeal"),
+                      builder: (context) => StreamProvider<List<Food>>.value(
+                          value: DatabaseService(uid: userId).foods,
+                          child: AddMeal(
+                            foodDiaryId: foodDiary.foodDiaryId,
+                            mealId: Uuid().v4().toString(),
+                          )),
+                    ));
               },
               icon: Icon(Icons.add, size: 26),
               label: Text("Add a Meal", style: TextStyle(fontSize: 24)),
             )
           ],
-        )
+        ),
+        DataTable(columns: [
+          DataColumn(
+              label: Text('Meal',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                  ))),
+          DataColumn(
+              label: Text('More Info',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))),
+        ], rows: mealsDisplay)
       ],
     );
   }
