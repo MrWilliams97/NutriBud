@@ -80,6 +80,8 @@ class _SearchFoodState extends State<SearchFood> {
       Map<String, dynamic> searchOptions = json.decode(response.body.toString());
       
       Food food = new Food(
+        brandName: searchOptions['BrandName'],
+        foodName: searchOptions['FoodName'],
         servingQuantity: double.parse(searchOptions['ServingQuantity'] == "None" ? "0": searchOptions['ServingQuantity']),
         servingUnit: searchOptions['ServingUnit'],
         calories: double.parse(searchOptions['Calories'] == "None" ? "0": searchOptions['Calories']),
@@ -90,7 +92,7 @@ class _SearchFoodState extends State<SearchFood> {
         fiber: double.parse(searchOptions['Fiber'] == "None" ? "0": searchOptions['Fiber']),
         sugar: double.parse(searchOptions['Sugar'] == "None" ? "0": searchOptions['Sugar']),
         protein: double.parse(searchOptions['Protein'] == "None" ? "0": searchOptions['Protein']),
-        potassium: double.parse(searchOptions['Potassium'] == "None" ? "0": searchOptions['Potassium'])
+        potassium: double.parse(searchOptions['Potassium'] == "None" ? "0": searchOptions['Potassium']),
       );
 
       return food;

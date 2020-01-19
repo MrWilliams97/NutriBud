@@ -1,30 +1,37 @@
 class Food {
+
+  final String brandName;
+
+  final String foodName;
+
   // Serving Quantity selected
-  final double servingQuantity;
+  double servingQuantity;
   // Serving Size selected
   final String servingUnit;
 
   // KCal
-  final double calories;
+  double calories;
   // g
-  final double fat;
+  double fat;
   // mg
-  final double cholestrol;
+  double cholestrol;
   // mg
-  final double sodium;
+  double sodium;
   // g
-  final double carbohydrates;
+  double carbohydrates;
   // g
-  final double fiber;
+  double fiber;
   // g
-  final double sugar;
+  double sugar;
   // g
-  final double protein;
+  double protein;
   // mg
-  final double potassium;
+  double potassium;
 
   Food(
       {
+      this.brandName,
+      this.foodName,
       this.servingQuantity,
       this.servingUnit,
       this.calories,

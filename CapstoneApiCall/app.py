@@ -115,6 +115,8 @@ def retrieveFood(foodId):
     data = r.json()
     
     x = {
+      "BrandName": str(data['foods'][0]['brand_name']),
+      "FoodName": str(data['foods'][0]['food_name']),
       "ServingQuantity": str(data['foods'][0]['serving_qty']),
       "ServingUnit": str(data['foods'][0]['serving_unit']),
       "Calories": str(data['foods'][0]['nf_calories']),

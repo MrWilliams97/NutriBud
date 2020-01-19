@@ -85,7 +85,10 @@ class FoodDiaryDetails extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddMeal()),
+                  MaterialPageRoute(
+                    settings: RouteSettings(name: "/AddMeal"),
+                    builder: (context) => AddMeal()
+                  ),
                 );
               },
               icon: Icon(Icons.add, size: 26),
