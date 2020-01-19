@@ -124,7 +124,10 @@ class _FoodDiaryState extends State<FoodDiary> {
       String base64Image = base64Encode(imageFile.readAsBytesSync());
       String fileName = imageFile.path.split("/").last;
 
-      http.get('http://10.0.3.2:5000/SampleApiCall/' + 'fakedata' + '/' + 'whatupsquad').then((res) {
+      http.post('http://10.0.3.2:5000/sendImage/' + 'hello' + '/' + 'whatup', body: {
+        "image": base64Image,
+        "name": fileName,
+      }).then((res) {
         print(res.statusCode);
       }).catchError((err) {
         print(err);

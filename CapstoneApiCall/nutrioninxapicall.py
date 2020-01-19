@@ -1,3 +1,5 @@
+from flask import Flask
+from flask import request
 import requests
 from dotenv import load_dotenv
 load_dotenv()
@@ -70,17 +72,19 @@ def salvador(foodId):
     return x
 
 
-@app.route("/sendImage/<base64Image>/<fileName>")
+@app.route("/sendImage/<base64Image>/<fileName>", methods=["POST"])
 def sendImage(base64Image, fileName):
     # print(base64Image)
-    # print("/n")
+    data = request.form
+    print("/n")
     print("========== THIS HAD BETTER FUCKING WORK ============")
-    # print("/n")
-    # print("/n")
-    # print(fileName)
-    # print("/n")
-    # print("/n")
-    # print("/n")
+    print("/n")
+    print(data.get('image'))
+    print("/n")
+    # print(data)
+    print("/n")
+    print(data.get('name'))
+    print("/n")
     return "Hello, World!"
 
 
