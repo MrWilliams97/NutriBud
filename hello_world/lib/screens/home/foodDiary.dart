@@ -9,7 +9,7 @@ import 'text_and_icon_button.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<Post> fetchPost() async {
-  final response = await http.get('http://10.0.3.2:5000/SampleApiCall/tomato');
+  final response = await http.get('http://10.0.3.2:5000/SewqeqampleApiCall/tomato');
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON.
