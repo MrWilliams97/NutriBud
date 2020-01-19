@@ -10,6 +10,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 from flask import Flask
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -83,11 +84,34 @@ def sendImage(base64Image, fileName):
     # print("/n")
     return "Hello, World!"
 
+@app.route("/search/<searchInput>")
+def searchFood(searchInput):
+    url = "https://trackapi.nutritionix.com/v2/search/instant?query="+searchInput
 
+    headers = {'content-type': 'application/json', 'x-app-id' : ACCESS_KEY, 'x-app-key' : SECRET_KEY, 'x-remote-user-id':'0'}
 
+    r = requests.get(url = url, headers = headers)
+    data = r.json()
+    
+    objectList = []
+
+    for item in data['branded']:
+        x = {
+            "brandName": item['brand_name'],
+            "foodName": item['food_name'],
+            "nixItem": item['nix_item_id']
+        }
+        objectList.append(x)
+    
+    return jsonify(objectList)
+
+class Object:
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
+    
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
-
 
 
 

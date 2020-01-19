@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/screens/home/addFood.dart';
 
 class AddMeal extends StatefulWidget {
   @override
@@ -74,9 +75,10 @@ class _AddMealState extends State<AddMeal> {
                     });
                   } else if (newValue == "Lookup") {
                     // Go to search screen
-                    setState(() {
-                      _addFoodItem('Manual');
-                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddFood()),
+                    );
                   } else if (newValue == "Barcode") {
                     // Go to barcode screen
                     setState(() {
@@ -97,7 +99,10 @@ class _AddMealState extends State<AddMeal> {
                   DropdownMenuItem(
                     value: "Lookup",
                     child: Row(
-                      children: <Widget>[Icon(Icons.search), Text("   Manual Search")],
+                      children: <Widget>[
+                        Icon(Icons.search),
+                        Text("   Manual Search")
+                      ],
                     ),
                   ),
                   DropdownMenuItem(
