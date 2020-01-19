@@ -1,10 +1,12 @@
 import "package:flutter/material.dart";
+import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/screens/home/addMeal.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/models/user.dart';
+import 'package:uuid/uuid.dart';
 
 class FoodDiaryDetails extends StatelessWidget {
   final DateTime foodDiaryDate;
@@ -13,6 +15,8 @@ class FoodDiaryDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+
     var foodDiaries = Provider.of<List<FoodDiary>>(context);
 
     final user = Provider.of<User>(context);
@@ -30,11 +34,13 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.month == now.month &&
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
-      DatabaseService(uid: userId.toString()).updateUserData(foodDiaryDate);
+      var foodDiaryId = Uuid().v4.toString();
+      DatabaseService(uid: userId.toString()).updateUserData(foodDiaryDate, foodDiaryId);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
     }
+
 
     var foodDiary = foodDiaryForDate.first;
 
@@ -87,9 +93,11 @@ class FoodDiaryDetails extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     settings: RouteSettings(name: "/AddMeal"),
-                    builder: (context) => AddMeal()
+                    builder: (context) => StreamProvider<List<Food>>.value(
+                            value: DatabaseService(uid: userId).foods,
+                            child: AddMeal(foodDiaryId: foodDiary.foodDiaryId, mealId: Uuid().v4().toString(),)
                   ),
-                );
+                ));
               },
               icon: Icon(Icons.add, size: 26),
               label: Text("Add a Meal", style: TextStyle(fontSize: 24)),

@@ -1,17 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/food.dart';
 import 'package:hello_world/screens/home/addManualFood/searchFood.dart';
+import 'package:hello_world/services/database.dart';
+import 'package:provider/provider.dart';
 
 class AddMeal extends StatefulWidget {
+  final String foodDiaryId;
+  final String mealId;
+  AddMeal({this.foodDiaryId, this.mealId});
+
   @override
   _AddMealState createState() => _AddMealState();
 }
 
 class _AddMealState extends State<AddMeal> {
   //THIS WILL BE STORED IN THE DATABASE
-  List<DataRow> foods = [];
+  List<DataRow> foodsDisplay = [];
 
   @override
   Widget build(BuildContext context) {
+    List<Food> foods = Provider.of<List<Food>>(context);
+
+    if (foods != null) {
+      if (foods.length > 0) {
+        foodsDisplay = [];
+        var foodsForMeal = foods.where((food) => food.mealId == widget.mealId);
+        if (foodsForMeal.length > 0) {
+          // Add this meal to the database and display foods
+          for (var food in foodsForMeal) {
+            _addFoodItem(food);
+          }
+          DatabaseService().addMeal(widget.foodDiaryId, widget.mealId);
+        }
+      }
+    }
+
     return Container(
       child: Scaffold(
           appBar: AppBar(
@@ -71,18 +94,20 @@ class _AddMealState extends State<AddMeal> {
                   if (newValue == "Camera") {
                     // Go to camera screen
                     setState(() {
-                      _addFoodItem('Camera');
+                      _addFoodItem(new Food());
                     });
                   } else if (newValue == "Lookup") {
                     // Go to search screen
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SearchFood()),
-                    );
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SearchFood(mealId: widget.mealId),
+                        ));
                   } else if (newValue == "Barcode") {
                     // Go to barcode screen
                     setState(() {
-                      _addFoodItem('Barcode');
+                      _addFoodItem(new Food());
                     });
                   }
                 },
@@ -141,19 +166,18 @@ class _AddMealState extends State<AddMeal> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 25))),
             ],
-            rows: foods,
+            rows: foodsDisplay,
           ),
         ],
       ),
     );
   }
 
-  void _addFoodItem(String food) {
+  void _addFoodItem(Food food) {
     //adds a food item to the list
-    print('added: ' + food);
-    foods.add(
+    foodsDisplay.add(
       DataRow(cells: [
-        DataCell(Text(food)),
+        DataCell(Text(food.brandName + " - " + food.foodName)),
         DataCell(Text('details'), onTap: () {
           print("tapped motherfucker.");
         }),

@@ -5,7 +5,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
+import 'package:uuid/uuid.dart';
+
 class SearchFood extends StatefulWidget {
+
+  final String mealId;
+
+  SearchFood({this.mealId});
+
   @override
   _SearchFoodState createState() => _SearchFoodState();
 }
@@ -80,13 +87,15 @@ class _SearchFoodState extends State<SearchFood> {
       Map<String, dynamic> searchOptions = json.decode(response.body.toString());
       
       Food food = new Food(
+        mealId: widget.mealId,
+        foodId: Uuid().v4(),
         brandName: searchOptions['BrandName'],
         foodName: searchOptions['FoodName'],
         servingQuantity: double.parse(searchOptions['ServingQuantity'] == "None" ? "0": searchOptions['ServingQuantity']),
         servingUnit: searchOptions['ServingUnit'],
         calories: double.parse(searchOptions['Calories'] == "None" ? "0": searchOptions['Calories']),
         fat: double.parse(searchOptions['Fat'] == "None" ? "0": searchOptions['Fat']),
-        cholestrol: double.parse(searchOptions['Cholestrol'] == "None" ? "0": searchOptions['Cholestrol']),
+        cholesterol: double.parse(searchOptions['Cholestrol'] == "None" ? "0": searchOptions['Cholestrol']),
         sodium: double.parse(searchOptions['Sodium'] == "None" ? "0": searchOptions['Sodium']),
         carbohydrates: double.parse(searchOptions['Carbohydrates'] == "None" ? "0": searchOptions['Carbohydrates']),
         fiber: double.parse(searchOptions['Fiber'] == "None" ? "0": searchOptions['Fiber']),

@@ -1,5 +1,9 @@
 class Food {
 
+  final String mealId; 
+
+  final String foodId;
+
   final String brandName;
 
   final String foodName;
@@ -14,7 +18,7 @@ class Food {
   // g
   double fat;
   // mg
-  double cholestrol;
+  double cholesterol;
   // mg
   double sodium;
   // g
@@ -30,13 +34,15 @@ class Food {
 
   Food(
       {
+      this.foodId,
+      this.mealId,
       this.brandName,
       this.foodName,
       this.servingQuantity,
       this.servingUnit,
       this.calories,
       this.fat,
-      this.cholestrol,
+      this.cholesterol,
       this.sodium,
       this.carbohydrates,
       this.fiber,

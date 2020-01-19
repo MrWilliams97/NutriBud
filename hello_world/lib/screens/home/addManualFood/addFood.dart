@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:hello_world/models/food.dart';
-import 'package:hello_world/screens/home/addMeal.dart';
+import 'package:hello_world/services/database.dart';
 
 class AddFood extends StatefulWidget {
   Food food;
@@ -35,7 +35,7 @@ class _AddFoodState extends State<AddFood> {
 
                   widget.food.calories = widget.food.calories * factor;
                   widget.food.fat = widget.food.fat * factor;
-                  widget.food.cholestrol = widget.food.cholestrol * factor;
+                  widget.food.cholesterol = widget.food.cholesterol * factor;
                   widget.food.sodium = widget.food.sodium * factor;
                   widget.food.carbohydrates =
                       widget.food.carbohydrates * factor;
@@ -59,7 +59,7 @@ class _AddFoodState extends State<AddFood> {
             ]),
             DataRow(cells: [
               DataCell(Text("Cholesterol (mg)")),
-              DataCell(Text(widget.food.cholestrol.toString()))
+              DataCell(Text(widget.food.cholesterol.toString()))
             ]),
             DataRow(cells: [
               DataCell(Text("Sodium (mg)")),
@@ -94,7 +94,8 @@ class _AddFoodState extends State<AddFood> {
           shape: new RoundedRectangleBorder(
               borderRadius: new BorderRadius.circular(18.0),
               side: BorderSide(color: Colors.red)),
-          onPressed: () {
+          onPressed: () async {
+            await DatabaseService().uploadFoodData(widget.food);
             Navigator.of(context)
               .popUntil(ModalRoute.withName("/AddMeal"));
           },
