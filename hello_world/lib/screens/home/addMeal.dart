@@ -178,7 +178,7 @@ class _AddMealState extends State<AddMeal> {
     foodsDisplay.add(
       DataRow(cells: [
         DataCell(Text(food.brandName + " - " + food.foodName)),
-        DataCell(Text('details'), onTap: () {
+        DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)), onTap: () {
           print("tapped motherfucker.");
         }),
       ]),

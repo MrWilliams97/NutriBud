@@ -30,7 +30,9 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
           child: new Stack(children: <Widget>[
         Scaffold(
           body: Center(
-            child: FoodDiaryDetails(foodDiaryDate: diaryDate),
+            child: StreamProvider.value(
+              value: DatabaseService().meals,
+              child:FoodDiaryDetails(foodDiaryDate: diaryDate)),
           ),
           bottomNavigationBar: _buildBottomAppBar(),
         ),

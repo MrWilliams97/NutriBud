@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/models/gainRivalsModel.dart';
+import 'package:hello_world/models/meal.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -139,6 +140,19 @@ class DatabaseService {
     return foods;
   }
 
+  List<Meal> _mealsFromSnapshot(QuerySnapshot snapshot){
+    var meals = snapshot.documents.map((doc) {
+      var mealId = doc.documentID;
+      var foodDiaryId = doc.data['foodDiaryId'];
+
+      var meal = new Meal(foodDiaryId: foodDiaryId, mealId: mealId);
+
+      return meal;
+    }).toList();
+
+    return meals;
+  }
+
 
   // Get FoodDiaries stream
   Stream<List<FoodDiary>> get foodDiaries {
@@ -151,5 +165,9 @@ class DatabaseService {
 
   Stream<List<Food>> get foods {
     return foodsCollection.snapshots().map(_foodsFromSnapshot);
+  }
+
+  Stream<List<Meal>> get meals {
+    return mealsCollection.snapshots().map(_mealsFromSnapshot);
   }
 }
