@@ -4,7 +4,6 @@ import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/models/gainRivalsModel.dart';
 import 'package:hello_world/models/meal.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   final String uid;
@@ -45,7 +44,7 @@ class DatabaseService {
       "servingUnit": food.servingUnit,
       "calories": food.calories,
       "fat": food.fat,
-      "cholestrol": food.cholesterol,
+      "cholesterol": food.cholesterol,
       "sodium": food.sodium,
       "carbohydrates": food.carbohydrates,
       "fiber": food.fiber,

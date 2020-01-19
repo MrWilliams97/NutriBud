@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/food.dart';
+import 'package:hello_world/screens/home/addManualFood/addFood.dart';
 import 'package:hello_world/screens/home/addManualFood/searchFood.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
@@ -21,10 +22,11 @@ class _AddMealState extends State<AddMeal> {
   Widget build(BuildContext context) {
     List<Food> foods = Provider.of<List<Food>>(context);
 
+    var foodsForMeal = <Food>[];
     if (foods != null) {
       if (foods.length > 0) {
         foodsDisplay = [];
-        var foodsForMeal = foods.where((food) => food.mealId == widget.mealId);
+        foodsForMeal = foods.where((food) => food.mealId == widget.mealId).toList();
         if (foodsForMeal.length > 0) {
           // Add this meal to the database and display foods
           for (var food in foodsForMeal) {
@@ -55,7 +57,7 @@ class _AddMealState extends State<AddMeal> {
                   color: Colors.red,
                   thickness: 10,
                 ),
-                _buildInfoCard(),
+                _buildInfoCard(foodsForMeal),
               ],
             ),
           )),
@@ -178,14 +180,41 @@ class _AddMealState extends State<AddMeal> {
     foodsDisplay.add(
       DataRow(cells: [
         DataCell(Text(food.brandName + " - " + food.foodName)),
-        DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)), onTap: () {
-          print("tapped motherfucker.");
+        DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
+            onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddFood(food: food),
+              ));
         }),
       ]),
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(List<Food> foods) {
+    double calorieSum = 0;
+    double fatSum = 0;
+    double cholesterolSum = 0;
+    double sodiumSum = 0;
+    double carbohydratesSum = 0;
+    double fiberSum = 0;
+    double sugarSum = 0;
+    double proteinSum = 0;
+    double potassiumSum = 0;
+
+    for(var food in foods){
+      calorieSum += food.calories;
+      fatSum += food.fat;
+      cholesterolSum += food.cholesterol;
+      sodiumSum += food.sodium;
+      carbohydratesSum += food.carbohydrates;
+      fiberSum += food.fiber;
+      sugarSum += food.sugar;
+      proteinSum += food.protein;
+      potassiumSum += food.potassium;
+    }
+
     //build info card that contains all the summed up info
     return Expanded(
       child: ListView(
@@ -209,9 +238,57 @@ class _AddMealState extends State<AddMeal> {
               DataRow(cells: [
                 DataCell(Text('Calories')),
                 DataCell(
-                  Text('200'),
+                  Text(calorieSum.toString()),
                 ),
-              ]),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Fat')),
+                DataCell(
+                  Text(fatSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Cholesterol')),
+                DataCell(
+                  Text(cholesterolSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Sodium')),
+                DataCell(
+                  Text(sodiumSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Carbohydrates')),
+                DataCell(
+                  Text(carbohydratesSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Fiber')),
+                DataCell(
+                  Text(fiberSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Sugar')),
+                DataCell(
+                  Text(sugarSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Protein')),
+                DataCell(
+                  Text(proteinSum.toString()),
+                ),
+              ],),
+              DataRow(cells: [
+                DataCell(Text('Potassium')),
+                DataCell(
+                  Text(potassiumSum.toString()),
+                ),
+              ],),
             ],
           ),
         ],
