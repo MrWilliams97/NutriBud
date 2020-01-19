@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/screens/home/BarcodeScanner.dart';
 
 class AddMeal extends StatefulWidget {
   @override
@@ -80,7 +81,11 @@ class _AddMealState extends State<AddMeal> {
                   } else if (newValue == "Barcode") {
                     // Go to barcode screen
                     setState(() {
-                      _addFoodItem('Barcode');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BarcodeScanner()),
+                      );
+                      //_addFoodItem('Barcode');
                     });
                   }
                 },
