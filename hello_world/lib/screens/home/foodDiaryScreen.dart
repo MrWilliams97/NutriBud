@@ -9,6 +9,7 @@ import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:hello_world/models/user.dart';
+import 'package:hello_world/screens/home/UserSettings.dart';
 
 class FoodDiaryScreen extends StatefulWidget {
   @override
@@ -113,7 +114,12 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
               ),
             ),
             new FlatButton(
-              onPressed: () async {},
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserSettings()),
+                );
+              },
               padding: EdgeInsets.only(top: 10, bottom: 10, left: 20),
               child: new Column(
                 mainAxisSize: MainAxisSize.min,
