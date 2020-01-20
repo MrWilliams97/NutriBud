@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AddMeal extends StatefulWidget {
   final String foodDiaryId;
@@ -25,6 +27,15 @@ class _AddMealState extends State<AddMeal> {
   //THIS WILL BE STORED IN THE DATABASE
   List<DataRow> foodsDisplay = [];
   var result = "";
+
+  File imageFile;
+
+  _openCamera(BuildContext context) async {
+    var picture = await ImagePicker.pickImage(source: ImageSource.camera);
+    this.setState(() {
+      imageFile = picture;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +114,15 @@ class _AddMealState extends State<AddMeal> {
                 style: TextStyle(color: Colors.black),
                 onChanged: (String newValue) async {
                   if (newValue == "Camera") {
+                    _openCamera(context);
                     // Go to camera screen
-                    setState(() {
-                      _addFoodItem(new Food());
-                    });
+                    var options = await fetchOptions();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ButtonOptions(options: options, mealId: widget.mealId)),
+                    );
                   } else if (newValue == "Lookup") {
                     // Go to search screen
                     Navigator.push(
@@ -125,7 +141,6 @@ class _AddMealState extends State<AddMeal> {
                       MaterialPageRoute(
                           builder: (context) => AddFood(food: food)),
                     );
-
                   }
                 },
                 items: [
@@ -329,9 +344,33 @@ class _AddMealState extends State<AddMeal> {
     );
   }
 
+  Future<List<String>> fetchOptions() async {
+    String base64Image = base64Encode(imageFile.readAsBytesSync());
+    String fileName = imageFile.path.split("/").last;
+
+    var response = await http.post('http://3c996987.ngrok.io/sendImage', body: {
+      "image": base64Image,
+      "name": fileName,
+    });
+
+    List<String> buttonOptions = [];
+    if (response.statusCode == 200) {
+      List<dynamic> options = jsonDecode(response.body);
+
+      for (var option in options) {
+        buttonOptions.add(option.toString());
+      }
+    }else {
+      print("Fail");
+    }
+    
+
+    return buttonOptions;
+  }
+
   Future<Food> fetchUpc(String upc) async {
     // Need to replace with ngrok for now
-    var url = "http://10.0.3.2:5000/retrieveUpc/" + upc;
+    var url = "http://3c996987.ngrok.io/retrieveUpc/" + upc;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -403,6 +442,75 @@ class _AddMealState extends State<AddMeal> {
       setState(() {
         result = "Unknown Error $e";
       });
+    }
+  }
+}
+
+class ButtonOptions extends StatefulWidget {
+  List<String> options;
+  String mealId; 
+
+  ButtonOptions({this.options, this.mealId});
+
+  @override
+  _ButtonOptionsState createState() => _ButtonOptionsState();
+}
+
+class _ButtonOptionsState extends State<ButtonOptions> {
+  @override
+  Widget build(BuildContext context) {
+    var buttons = <Widget>[];
+
+    for (var option in widget.options) {
+      buttons.add(RaisedButton(
+          onPressed: () async {
+            var food = await getFoodFromName(option.toString());
+            Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddFood(food: food)),
+                );
+          },
+          color: Colors.grey,
+          child: Text(option.toString())));
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.red,
+        ),
+        body: ListView(
+          children: buttons,
+        ));
+  }
+
+  Future<Food> getFoodFromName(String name) async {
+    var url = "http://3c996987.ngrok.io/SampleApiCall/" + name;
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> searchOptions = json.decode(response.body.toString());
+      
+      Food food = new Food(
+        mealId: widget.mealId,
+        foodId: Uuid().v4(),
+        brandName: searchOptions['BrandName'],
+        foodName: searchOptions['FoodName'],
+        servingQuantity: double.parse(searchOptions['ServingQuantity'] == "None" ? "0": searchOptions['ServingQuantity']),
+        servingUnit: searchOptions['ServingUnit'],
+        calories: double.parse(searchOptions['Calories'] == "None" ? "0": searchOptions['Calories']),
+        fat: double.parse(searchOptions['Fat'] == "None" ? "0": searchOptions['Fat']),
+        cholesterol: double.parse(searchOptions['Cholestrol'] == "None" ? "0": searchOptions['Cholestrol']),
+        sodium: double.parse(searchOptions['Sodium'] == "None" ? "0": searchOptions['Sodium']),
+        carbohydrates: double.parse(searchOptions['Carbohydrates'] == "None" ? "0": searchOptions['Carbohydrates']),
+        fiber: double.parse(searchOptions['Fiber'] == "None" ? "0": searchOptions['Fiber']),
+        sugar: double.parse(searchOptions['Sugar'] == "None" ? "0": searchOptions['Sugar']),
+        protein: double.parse(searchOptions['Protein'] == "None" ? "0": searchOptions['Protein']),
+        potassium: double.parse(searchOptions['Potassium'] == "None" ? "0": searchOptions['Potassium']),
+      );
+
+      return food;
+    } else {
+      throw Exception("Failed to retrieve search results");
     }
   }
 }
