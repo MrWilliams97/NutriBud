@@ -9,7 +9,7 @@ import 'text_and_icon_button.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<Post> fetchPost() async {
-  final response = await http.get('http://10.0.3.2:5000/SewqeqampleApiCall/tomato');
+  final response = await http.get('http://e6ce8ae9.ngrok.io//SewqeqampleApiCall/tomato');
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON.
@@ -124,7 +124,7 @@ class _FoodDiaryState extends State<FoodDiary> {
       String base64Image = base64Encode(imageFile.readAsBytesSync());
       String fileName = imageFile.path.split("/").last;
 
-      http.post('http://10.0.3.2:5000/sendImage/' + 'hello' + '/' + 'whatup', body: {
+      http.post('http://e6ce8ae9.ngrok.io/sendImage/' + 'hello' + '/' + 'whatup', body: {
         "image": base64Image,
         "name": fileName,
       }).then((res) {
