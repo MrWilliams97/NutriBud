@@ -96,9 +96,9 @@ def sendImage(base64Image, fileName):
 
 
 
-    authenticator = IAMAuthenticator()
+    authenticator = IAMAuthenticator(os.getenv("IAMAUTHENTICATOR_KEY"))
     instance = VisualRecognitionV3(version='2018-03-19',authenticator=authenticator)
-    instance.set_service_url()
+    instance.set_service_url(os.getenv("SERVICE_URL_KEY"))
 
     classifier_ids = ["food"]
 
