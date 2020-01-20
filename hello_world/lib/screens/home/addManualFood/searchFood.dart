@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:hello_world/models/food.dart';
-import 'package:hello_world/screens/home/AddManualFood/addFood.dart';
+import 'package:hello_world/screens/home/addManualFood/addFood.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
