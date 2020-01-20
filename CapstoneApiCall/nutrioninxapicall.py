@@ -17,8 +17,6 @@ import tempfile
 
 
 
-
-
 from flask import Flask
 
 app = Flask(__name__)
@@ -70,12 +68,6 @@ def salvador(foodId):
       "Sugars": str(float(servings)*data['foods'][0]['nf_sugars'])+"g"
     }
 
-#     x={
-# 'userId': 1,
-# 'id': 1,
-# 'title': "This should probably work",
-# 'body': "This should work"
-# }
 
     return x
 
@@ -84,17 +76,6 @@ def salvador(foodId):
 def sendImage(base64Image, fileName):
     # print(base64Image)
     data = request.form
-    print("/n")
-    print("========== THIS HAD BETTER FUCKING WORK ============")
-    print("/n")
-    # print(data.get('image'))
-    print("/n")
-    # print(data)
-    print("/n")
-    # print(data.get('name'))
-    print("/n")
-
-
 
     authenticator = IAMAuthenticator(os.getenv("IAMAUTHENTICATOR_KEY"))
     instance = VisualRecognitionV3(version='2018-03-19',authenticator=authenticator)
@@ -104,8 +85,6 @@ def sendImage(base64Image, fileName):
 
 
     impo2 = bytes(data.get('image'), encoding='utf8')
-
-    # print(impo2)
 
     imgdata = base64.b64decode(impo2)
 
@@ -120,36 +99,6 @@ def sendImage(base64Image, fileName):
         file.close()
         f.close()
 
-
-    # url = 'https://tastesbetterfromscratch.com/wp-content/uploads/2018/04/Instant-Pot-Ranch-Chicken-Pasta-6.jpg'
-    # classifier_ids = ["food"]
-    # classes_result = instance.classify(url=url,classifier_ids=classifier_ids).get_result()
-    # print(json.dumps(classes_result, indent=2))
-
-
-    #
-    # url = 'https://tastesbetterfromscratch.com/wp-content/uploads/2018/04/Instant-Pot-Ranch-Chicken-Pasta-6.jpg'
-    #
-    #
-    # classifier_ids = ["food"]
-    #
-    #
-    # imgdata = base64.b64decode(data.get('image'))
-    # filename = 'some_image.jpg'  # I assume you have a way of picking unique filenames
-    # with open(filename, 'wb') as f:
-    #     f.write(imgdata)
-    #     file = open("some_image.jpg", 'rb')
-    #     # file = open("C:/Users/ivanb/Downloads/pasta.jpg", 'rb')
-    #     img2 = instance.classify(images_file=file,classifier_ids=classifier_ids).get_result()
-    #     print(json.dumps(img2, indent=2))
-    #     file.close()
-    #     f.close()
-    #     os.remove("some_image.jpg")
-
-
-
-
-
     return "Hello, World!"
 
 
@@ -158,12 +107,6 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
 
 
-
-
-
-
-
-#classification recieved from model*****this must be given/taken from the ML model
 label  = "grilled%20cheese"
 
 #url used to get common and branded food items json file
