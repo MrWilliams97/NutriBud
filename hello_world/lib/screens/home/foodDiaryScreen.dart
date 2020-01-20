@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/screens/home/GainRivals/GainRivals.dart';
+import 'package:hello_world/screens/home/UserSettings.dart';
 import 'package:hello_world/screens/home/foodDiaryDetails.dart';
 import 'package:hello_world/screens/home/timelines.dart';
 import 'package:hello_world/services/auth.dart';
@@ -115,7 +116,12 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
               ),
             ),
             new FlatButton(
-              onPressed: () async {},
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserSettings()),
+                );
+              },
               padding: EdgeInsets.only(top: 10, bottom: 10, left: 20),
               child: new Column(
                 mainAxisSize: MainAxisSize.min,

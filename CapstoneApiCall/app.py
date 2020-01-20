@@ -25,7 +25,7 @@ def home():
 @app.route("/SampleApiCall/<foodId>")
 def sampleApiCall(foodId):
     # label = foodId
-
+    print("swag")
     #url used to get common and branded food items json file
     url = "https://trackapi.nutritionix.com/v2/search/instant?query="+str(foodId)
 

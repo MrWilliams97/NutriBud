@@ -485,9 +485,11 @@ class _ButtonOptionsState extends State<ButtonOptions> {
 
   Future<Food> getFoodFromName(String name) async {
     var url = "http://3c996987.ngrok.io/SampleApiCall/" + name;
+    print("swag");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
+      print("success");
       Map<String, dynamic> searchOptions = json.decode(response.body.toString());
       
       Food food = new Food(
@@ -510,6 +512,7 @@ class _ButtonOptionsState extends State<ButtonOptions> {
 
       return food;
     } else {
+      print(response.statusCode.toString());
       throw Exception("Failed to retrieve search results");
     }
   }
