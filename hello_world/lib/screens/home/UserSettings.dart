@@ -42,8 +42,8 @@ class _UserSettingsState extends State<UserSettings> {
         body: SafeArea(
           child: Center(
             child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
                 DataTable(
                   columns: [
                     DataColumn(label: Text('Account Settings')),
