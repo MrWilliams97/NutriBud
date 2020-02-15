@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/GainRivals/GainRivals.dart';
-import 'package:hello_world/screens/home/UserSettings.dart';
 import 'package:hello_world/screens/home/foodDiaryDetails.dart';
 import 'package:hello_world/screens/home/timelines.dart';
+import 'package:hello_world/screens/home/userSettingsScreen.dart';
 import 'package:hello_world/services/auth.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:hello_world/models/user.dart';
 
 class FoodDiaryScreen extends StatefulWidget {
+  var userId;
   @override
   _FoodDiaryScreenState createState() => _FoodDiaryScreenState();
 }
@@ -24,9 +26,9 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-    var userId = user.uid;
+    widget.userId = user.uid;
     return StreamProvider<List<FoodDiary>>.value(
-      value: DatabaseService(uid: userId).foodDiaries,
+      value: DatabaseService(uid: widget.userId).foodDiaries,
       child: new Container(
           child: new Stack(children: <Widget>[
         Scaffold(
@@ -119,8 +121,14 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => UserSettings()),
-                );
+                  MaterialPageRoute
+                  (
+                    settings: RouteSettings(name: "/UserSettings"),
+                    builder: (context) => StreamProvider<List<UserSettings>>.value(
+                      value: DatabaseService(uid: widget.userId).userSettings,
+                      child: UserSettingsScreen()
+                    )
+                ));
               },
               padding: EdgeInsets.only(top: 10, bottom: 10, left: 20),
               child: new Column(

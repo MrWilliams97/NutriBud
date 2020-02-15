@@ -3,6 +3,7 @@ import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/models/gainRivalsModel.dart';
 import 'package:hello_world/models/meal.dart';
+import 'package:hello_world/models/userSettings.dart';
 import 'package:intl/intl.dart';
 
 class DatabaseService {
@@ -14,14 +15,17 @@ class DatabaseService {
   final CollectionReference foodDiariesCollection =
       Firestore.instance.collection("foodDiaries");
 
-  final CollectionReference mealsCollection = 
-    Firestore.instance.collection("meals");
+  final CollectionReference mealsCollection =
+      Firestore.instance.collection("meals");
 
-  final CollectionReference foodsCollection = 
-    Firestore.instance.collection("foods");
+  final CollectionReference foodsCollection =
+      Firestore.instance.collection("foods");
 
   final CollectionReference gainRivalsCollection =
-    Firestore.instance.collection("gainRivalsGame");
+      Firestore.instance.collection("gainRivalsGame");
+
+  final CollectionReference userSettingsCollection =
+      Firestore.instance.collection("userSettings");
 
   Future updateUserData(DateTime foodDiaryDate, String foodDiaryId) async {
     return await foodDiariesCollection.document(foodDiaryId).setData({
@@ -35,7 +39,17 @@ class DatabaseService {
     });
   }
 
-  Future uploadFoodData(Food food) async{
+  Future updateUserSettings(UserSettings userSettings) async {
+    return await userSettingsCollection.document(userSettings.userId).setData({
+      "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+      "firstName": userSettings.firstName,
+      "lastName": userSettings.lastName,
+      "height": userSettings.height,
+      "userName": userSettings.userName
+    });
+  }
+
+  Future uploadFoodData(Food food) async {
     return await foodsCollection.document(food.foodId).setData({
       "mealId": food.mealId,
       "brandName": food.brandName,
@@ -54,16 +68,16 @@ class DatabaseService {
     });
   }
 
-  Future addGainRivalsGame(GainRivalsModel model) async{
-    return await gainRivalsCollection.document(model.gameName).setData({
-      "users": model.users
-    });
+  Future addGainRivalsGame(GainRivalsModel model) async {
+    return await gainRivalsCollection
+        .document(model.gameName)
+        .setData({"users": model.users});
   }
 
   Future addMeal(String foodDiaryId, String mealId) async {
-    return await mealsCollection.document(mealId).setData({
-      "foodDiaryId": foodDiaryId
-    });
+    return await mealsCollection
+        .document(mealId)
+        .setData({"foodDiaryId": foodDiaryId});
   }
 
   List<FoodDiary> _foodDiariesFromSnapshot(QuerySnapshot snapshot) {
@@ -97,7 +111,7 @@ class DatabaseService {
     }).toList();
   }
 
-  List<Food> _foodsFromSnapshot(QuerySnapshot snapshot){
+  List<Food> _foodsFromSnapshot(QuerySnapshot snapshot) {
     var foods = snapshot.documents.map((doc) {
       var foodId = doc.documentID;
       var mealId = doc.data['mealId'];
@@ -116,22 +130,21 @@ class DatabaseService {
       var sugar = doc.data['sugar'];
 
       var food = Food(
-        foodId: foodId,
-        mealId: mealId,
-        brandName: brandName,
-        foodName: foodName,
-        calories: calories,
-        cholesterol: cholesterol,
-        carbohydrates: carbohydrates,
-        fat: fat,
-        fiber: fiber,
-        potassium: potassium,
-        protein: protein,
-        servingQuantity: servingQuantity,
-        servingUnit: servingUnit,
-        sodium: sodium,
-        sugar: sugar
-      );
+          foodId: foodId,
+          mealId: mealId,
+          brandName: brandName,
+          foodName: foodName,
+          calories: calories,
+          cholesterol: cholesterol,
+          carbohydrates: carbohydrates,
+          fat: fat,
+          fiber: fiber,
+          potassium: potassium,
+          protein: protein,
+          servingQuantity: servingQuantity,
+          servingUnit: servingUnit,
+          sodium: sodium,
+          sugar: sugar);
 
       return food;
     }).toList();
@@ -139,7 +152,7 @@ class DatabaseService {
     return foods;
   }
 
-  List<Meal> _mealsFromSnapshot(QuerySnapshot snapshot){
+  List<Meal> _mealsFromSnapshot(QuerySnapshot snapshot) {
     var meals = snapshot.documents.map((doc) {
       var mealId = doc.documentID;
       var foodDiaryId = doc.data['foodDiaryId'];
@@ -152,6 +165,29 @@ class DatabaseService {
     return meals;
   }
 
+  List<UserSettings> _userSettingsFromSnapshot(QuerySnapshot snapshot) {
+    var userSettings = snapshot.documents.map((doc){
+        var userId = doc.documentID;
+        var firstName = doc.data['firstName'];
+        var lastName = doc.data['lastName'];
+        var dateOfBirth = DateTime.parse(doc.data['dateOfBirth']);
+        var userName = doc.data['userName'];
+        var height = doc.data['height'];
+
+ 
+        var userSetting = new UserSettings(
+            userId: userId,
+            firstName: firstName,
+            lastName: lastName,
+            height: height.toDouble(),
+            userName: userName,
+            dateOfBirth: dateOfBirth);
+
+        return userSetting;
+     }).toList();
+
+    return userSettings;
+  }
 
   // Get FoodDiaries stream
   Stream<List<FoodDiary>> get foodDiaries {
@@ -168,5 +204,9 @@ class DatabaseService {
 
   Stream<List<Meal>> get meals {
     return mealsCollection.snapshots().map(_mealsFromSnapshot);
+  }
+
+  Stream<List<UserSettings>> get userSettings {
+    return userSettingsCollection.snapshots().map(_userSettingsFromSnapshot);
   }
 }

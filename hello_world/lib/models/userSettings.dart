@@ -1,10 +1,10 @@
 class UserSettings {
-  final String uid;
-  final DateTime dateOfBirth;
-  final String firstName; 
-  final String lastName; 
-  final String userName;
-  final double height;
+  String userId;
+  DateTime dateOfBirth;
+  String firstName; 
+  String lastName; 
+  String userName;
+  double height;
 
-  UserSettings({this.uid, this.dateOfBirth, this.firstName, this.lastName, this.userName, this.height});
+  UserSettings({this.userId, this.dateOfBirth, this.firstName, this.lastName, this.userName, this.height});
 }
