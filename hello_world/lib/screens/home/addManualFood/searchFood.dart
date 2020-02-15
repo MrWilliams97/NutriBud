@@ -68,7 +68,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<List<dynamic>> fetchSearchOptions(String searchInput) async {
-    var url = "http://3c996987.ngrok.io/search/" + searchInput;
+    var url = "http://localhost:8000/search/" + searchInput;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -80,7 +80,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<Food> fetchFood(String nutritionixId) async {
-    var url = "http://3c996987.ngrok.io/retrieveFood/" + nutritionixId;
+    var url = "http://localhost:8000/retrieveFood/" + nutritionixId;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
