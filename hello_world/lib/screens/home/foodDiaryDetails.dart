@@ -70,6 +70,7 @@ class FoodDiaryDetails extends StatelessWidget {
               })
           ]));
         }
+        count++;
       }
     }
 

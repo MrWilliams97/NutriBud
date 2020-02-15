@@ -33,7 +33,7 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
           body: Center(
             child: StreamProvider.value(
               value: DatabaseService().meals,
-              child:FoodDiaryDetails(foodDiaryDate: diaryDate)),
+              child: FoodDiaryDetails(foodDiaryDate: diaryDate)),
           ),
           bottomNavigationBar: _buildBottomAppBar(),
         ),
