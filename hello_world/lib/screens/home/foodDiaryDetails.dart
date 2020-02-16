@@ -20,7 +20,7 @@ class FoodDiaryDetails extends StatelessWidget {
     final user = Provider.of<User>(context);
     var userId = user.uid;
 
-    if (foodDiaries == null){
+    if (foodDiaries == null) {
       return Text("");
     }
 
@@ -37,8 +37,13 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
       var foodDiaryId = Uuid().v4();
+      FoodDiary foodDiary = new FoodDiary();
+      //initialize obj
+      foodDiary.foodDiaryDate=foodDiaryDate;
+      foodDiary.foodDiaryId=foodDiaryId;
+
       DatabaseService(uid: userId.toString())
-          .updateUserData(foodDiaryDate, foodDiaryId);
+          .updateUserData(foodDiary);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
@@ -60,18 +65,18 @@ class FoodDiaryDetails extends StatelessWidget {
             DataCell(Text("Meal #" + count.toString())),
             DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      settings: RouteSettings(name: "/AddMeal"),
-                      builder: (context) => StreamProvider<List<Food>>.value(
-                          value: DatabaseService(uid: userId).foods,
-                          child: AddMeal(
-                            foodDiaryId: foodDiary.foodDiaryId,
-                            mealId: meal.mealId,
-                          )),
-                    ));
-              })
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(name: "/AddMeal"),
+                    builder: (context) => StreamProvider<List<Food>>.value(
+                        value: DatabaseService(uid: userId).foods,
+                        child: AddMeal(
+                          foodDiaryId: foodDiary.foodDiaryId,
+                          mealId: meal.mealId,
+                        )),
+                  ));
+            })
           ]));
         }
         count++;
@@ -119,8 +124,18 @@ class FoodDiaryDetails extends StatelessWidget {
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
-        Row(
+        Column(
           children: <Widget>[
+            Text("Current Calories Burned: "+foodDiary.caloriesBurned.toString()),
+            FlatButton.icon(
+              onPressed: () {
+                //popup to input cals burned
+                _createCalsBurnedDialog(context,foodDiary);
+              },
+              icon: Icon(Icons.add, size: 26),
+              label:
+                  Text("Set Calories Burned", style: TextStyle(fontSize: 24)),
+            ),
             FlatButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -153,5 +168,38 @@ class FoodDiaryDetails extends StatelessWidget {
         ], rows: mealsDisplay)
       ],
     );
+  }
+
+  _createCalsBurnedDialog(BuildContext context,FoodDiary foodDiary) {
+    TextEditingController customController = TextEditingController();
+    bool _notDouble = false;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Set Calories Burned"),
+            content: TextField(
+                controller: customController,
+                decoration: InputDecoration(
+                  errorText: _notDouble ? 'Value must be a number' : null,
+                )),
+            actions: <Widget>[
+              MaterialButton(
+                child: Text('Submit'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (double.tryParse(customController.text.toString()) ==
+                        null) {
+                      _notDouble = true;
+                  }else{
+                    //set calories burned val in databse
+                    foodDiary.caloriesBurned = int.parse(customController.text.toString());
+                    DatabaseService(uid: foodDiary.userId).updateUserData(foodDiary);
+                  }
+                },
+              )
+            ],
+          );
+        });
   }
 }
