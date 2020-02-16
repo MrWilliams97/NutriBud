@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 class UserSettingsScreen extends StatefulWidget {
   UserSettings currentUser;
+
   @override
   _UserSettingsState createState() => _UserSettingsState();
 }
@@ -139,6 +140,80 @@ class _UserSettingsState extends State<UserSettingsScreen> {
               )
             ],
           );
+        });
+  }
+
+  _createCalorieGoalDialog(BuildContext context) {
+    TextEditingController customController = TextEditingController();
+    TextEditingController goalWeightController = TextEditingController();
+    bool _notDouble = false;
+    DateTime calorieGoalDate = DateTime.now();
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 100.0),
+              child: AlertDialog(
+                title: Text("Create Calorie Goal"),
+                content: new ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: 250.0),
+                  child: Column(children: <Widget>[
+                    Text("Insert Current Weight"),
+                    TextField(
+                        controller: customController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _notDouble ? 'Value must be a number' : null,
+                        )),
+                    Text("Insert Goal End Date"),
+                    Text(
+                        new DateFormat.yMMMMd("en_US").format(calorieGoalDate)),
+                    IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      tooltip: 'Tap to open date picker',
+                      onPressed: () async {
+                        final DateTime d = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime.now(),
+                          initialDate: DateTime.now(),
+                          lastDate: DateTime(2022),
+                        );
+                        if (d != null)
+                          setState(() {
+                            calorieGoalDate = d;
+                          });
+                      },
+                    ),
+                    Text("Insert Goal Weight"),
+                    TextField(
+                        controller: goalWeightController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _notDouble ? 'Value must be a number' : null,
+                        ))
+                  ]),
+                ),
+                actions: <Widget>[
+                  MaterialButton(
+                    child: Text('Submit'),
+                    onPressed: () {
+                      setState(() {
+                        if (double.tryParse(customController.text.toString()) ==
+                            null) {
+                          _notDouble = true;
+                        } else {
+                          widget.currentUser.height =
+                              double.parse(customController.text.toString());
+                          Navigator.of(context).pop();
+                        }
+                      });
+                    },
+                  )
+                ],
+              ),
+            );
+          });
         });
   }
 
@@ -279,6 +354,29 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                       )),
                     ]),
                     DataRow(cells: [
+                      DataCell(Text('Active Calorie Goal')),
+                      DataCell(Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          InkWell(
+                            child: Text(widget.currentUser.height.toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Color(0xFF000000))),
+                            onTap: () {
+                              _createCalorieGoalDialog(context);
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.border_color),
+                            tooltip: 'Modify Height',
+                            onPressed: () {
+                              _createCalorieGoalDialog(context);
+                            },
+                          ),
+                        ],
+                      )),
+                    ]),
+                    DataRow(cells: [
                       DataCell(Text('Your Date of Birth')),
                       DataCell(
                         Row(
@@ -307,18 +405,24 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                     ]),
                   ],
                 ),
-                Column(crossAxisAlignment: CrossAxisAlignment.center,children: <Widget>[RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(18.0),
-                        side: BorderSide(color: Colors.red)),
-                    child: Text("Modify Account Settings".toUpperCase()),
-                    textColor: Colors.white,
-                    color: Colors.red,
-                    onPressed: () async {
-                      DatabaseService(uid: userId).updateUserSettings(widget.currentUser);
-                      Navigator.pop(context);
-                    },
-                )],)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(18.0),
+                          side: BorderSide(color: Colors.red)),
+                      child: Text("Modify Account Settings".toUpperCase()),
+                      textColor: Colors.white,
+                      color: Colors.red,
+                      onPressed: () async {
+                        DatabaseService(uid: userId)
+                            .updateUserSettings(widget.currentUser);
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                )
               ],
             ),
           ),
