@@ -20,6 +20,10 @@ class FoodDiaryDetails extends StatelessWidget {
     final user = Provider.of<User>(context);
     var userId = user.uid;
 
+    if (foodDiaries == null){
+      return Text("");
+    }
+
     foodDiaries = foodDiaries.where((value) => value != null).toList();
     var foodDiaryForDate = foodDiaries.where((foodDiary) =>
         foodDiary.foodDiaryDate.day == foodDiaryDate.day &&
@@ -32,7 +36,7 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.month == now.month &&
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
-      var foodDiaryId = Uuid().v4.toString();
+      var foodDiaryId = Uuid().v4();
       DatabaseService(uid: userId.toString())
           .updateUserData(foodDiaryDate, foodDiaryId);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));

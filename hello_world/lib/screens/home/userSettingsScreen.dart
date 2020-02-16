@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 class UserSettingsScreen extends StatefulWidget {
   UserSettings currentUser;
-  DateTime calorieGoalDate = DateTime.now();
+
   @override
   _UserSettingsState createState() => _UserSettingsState();
 }
@@ -143,63 +143,77 @@ class _UserSettingsState extends State<UserSettingsScreen> {
         });
   }
 
-  Future<void> _selectCalorieGoalDate(BuildContext context) async {
-    final DateTime d = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now(),
-      initialDate: DateTime.now(),
-      lastDate: DateTime(2022),
-    );
-    if (d != null)
-      setState(() {
-        widget.calorieGoalDate = d;
-      });
-  }
-
   _createCalorieGoalDialog(BuildContext context) {
     TextEditingController customController = TextEditingController();
+    TextEditingController goalWeightController = TextEditingController();
     bool _notDouble = false;
+    DateTime calorieGoalDate = DateTime.now();
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text("Create Calorie Goal"),
-            content: new Column(children: <Widget>[
-              Text("Insert Current Weight"),
-              TextField(
-                  controller: customController,
-                  decoration: InputDecoration(
-                    errorText: _notDouble ? 'Value must be a number' : null,
-                  )),
-              Text("Insert Goal End Date"),
-              Text(new DateFormat.yMMMMd("en_US")
-                  .format(widget.calorieGoalDate)),
-              IconButton(
-                icon: Icon(Icons.calendar_today),
-                tooltip: 'Tap to open date picker',
-                onPressed: () {
-                  _selectCalorieGoalDate(context);
-                },
-              )
-            ]),
-            actions: <Widget>[
-              MaterialButton(
-                child: Text('Submit'),
-                onPressed: () {
-                  setState(() {
-                    if (double.tryParse(customController.text.toString()) ==
-                        null) {
-                      _notDouble = true;
-                    } else {
-                      widget.currentUser.height =
-                          double.parse(customController.text.toString());
-                      Navigator.of(context).pop();
-                    }
-                  });
-                },
-              )
-            ],
-          );
+          return StatefulBuilder(builder: (context, setState) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 100.0),
+              child: AlertDialog(
+                title: Text("Create Calorie Goal"),
+                content: new ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: 250.0),
+                  child: Column(children: <Widget>[
+                    Text("Insert Current Weight"),
+                    TextField(
+                        controller: customController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _notDouble ? 'Value must be a number' : null,
+                        )),
+                    Text("Insert Goal End Date"),
+                    Text(
+                        new DateFormat.yMMMMd("en_US").format(calorieGoalDate)),
+                    IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      tooltip: 'Tap to open date picker',
+                      onPressed: () async {
+                        final DateTime d = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime.now(),
+                          initialDate: DateTime.now(),
+                          lastDate: DateTime(2022),
+                        );
+                        if (d != null)
+                          setState(() {
+                            calorieGoalDate = d;
+                          });
+                      },
+                    ),
+                    Text("Insert Goal Weight"),
+                    TextField(
+                        controller: goalWeightController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _notDouble ? 'Value must be a number' : null,
+                        ))
+                  ]),
+                ),
+                actions: <Widget>[
+                  MaterialButton(
+                    child: Text('Submit'),
+                    onPressed: () {
+                      setState(() {
+                        if (double.tryParse(customController.text.toString()) ==
+                            null) {
+                          _notDouble = true;
+                        } else {
+                          widget.currentUser.height =
+                              double.parse(customController.text.toString());
+                          Navigator.of(context).pop();
+                        }
+                      });
+                    },
+                  )
+                ],
+              ),
+            );
+          });
         });
   }
 
