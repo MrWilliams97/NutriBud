@@ -27,10 +27,12 @@ class DatabaseService {
   final CollectionReference userSettingsCollection =
       Firestore.instance.collection("userSettings");
 
-  Future updateUserData(DateTime foodDiaryDate, String foodDiaryId) async {
-    return await foodDiariesCollection.document(foodDiaryId).setData({
+  Future updateUserData(FoodDiary foodDiary) async {
+    //set fooddiary id and date vars
+    return await foodDiariesCollection.document(foodDiary.foodDiaryId).setData({
       "userId": uid,
-      "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiaryDate),
+      "caloriesBurned": foodDiary.caloriesBurned,
+      "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiary.foodDiaryDate),
       "savedCalorieGoal": null,
       "savedFatGoal": null,
       "savedCarbGoal": null,
@@ -83,22 +85,25 @@ class DatabaseService {
   List<FoodDiary> _foodDiariesFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
       var userId = doc.data['userId'];
+      var caloriesBurned = doc.data['caloriesBurned'];
       var parsedDate = DateTime.parse(doc.data['foodDiaryDate']);
       var savedCalorieGoal = doc.data['savedCalorieGoal'];
       var savedFatGoal = doc.data['savedFatGoal'];
       var savedCarbGoal = doc.data['savedCarbGoal'];
       var savedProteinGoal = doc.data['savedProteinGoal'];
-      var meals = doc.data['meals'];
+      //var meals = doc.data['meals'];
 
       return FoodDiary(
           foodDiaryId: doc.documentID,
           userId: userId ?? '',
+          caloriesBurned: caloriesBurned ?? 0,
           foodDiaryDate: parsedDate ?? null,
           savedCalorieGoal: savedCalorieGoal ?? null,
           savedFatGoal: savedFatGoal ?? null,
           savedCarbGoal: savedCarbGoal ?? null,
-          savedProteinGoal: savedProteinGoal ?? null,
-          meals: meals ?? new List<String>());
+          savedProteinGoal: savedProteinGoal ?? null
+          //meals: meals ?? new List<String>()
+          );
     }).toList();
   }
 
