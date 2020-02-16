@@ -37,8 +37,9 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
       var foodDiaryId = Uuid().v4();
+      FoodDiary foodDiary = new FoodDiary(foodDiaryDate: foodDiaryDate, foodDiaryId: foodDiaryId);
       DatabaseService(uid: userId.toString())
-          .updateUserData(foodDiaryDate, foodDiaryId);
+          .updateUserData(foodDiary);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
@@ -67,7 +68,7 @@ class FoodDiaryDetails extends StatelessWidget {
                       builder: (context) => StreamProvider<List<Food>>.value(
                           value: DatabaseService(uid: userId).foods,
                           child: AddMeal(
-                            foodDiaryId: foodDiary.foodDiaryId,
+                            foodDiary: foodDiary,
                             mealId: meal.mealId,
                           )),
                     ));
@@ -130,7 +131,7 @@ class FoodDiaryDetails extends StatelessWidget {
                       builder: (context) => StreamProvider<List<Food>>.value(
                           value: DatabaseService(uid: userId).foods,
                           child: AddMeal(
-                            foodDiaryId: foodDiary.foodDiaryId,
+                            foodDiary: foodDiary,
                             mealId: Uuid().v4().toString(),
                           )),
                     ));

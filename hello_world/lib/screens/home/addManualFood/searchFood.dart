@@ -1,7 +1,12 @@
 import "package:flutter/material.dart";
 import 'package:hello_world/models/food.dart';
+import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/meal.dart';
+import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/addManualFood/addFood.dart';
+import 'package:hello_world/services/database.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -10,8 +15,9 @@ import 'package:uuid/uuid.dart';
 class SearchFood extends StatefulWidget {
 
   final String mealId;
+  FoodDiary foodDiary;
 
-  SearchFood({this.mealId});
+  SearchFood({this.mealId, this.foodDiary});
 
   @override
   _SearchFoodState createState() => _SearchFoodState();
@@ -53,8 +59,17 @@ class _SearchFoodState extends State<SearchFood> {
             var food = await fetchFood(option['nixItem']);
              Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddFood(food: food)),
-                );
+                  MaterialPageRoute(
+                          builder: (context) => StreamProvider<List<Meal>>.value(
+                            value: DatabaseService(uid: widget.foodDiary.userId).meals,
+                            child: StreamProvider<List<UserSettings>>.value(
+                              value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                              child: StreamProvider<List<Food>>.value(
+                                value: DatabaseService(uid: widget.foodDiary.userId).foods,
+                                child: AddFood(food: food, foodDiary: widget.foodDiary)
+                              ),
+                          ),
+                )));
           },
           label: Text(option['brandName'] + "    " + option['foodName']),
           icon: Icon(Icons.arrow_right)));
@@ -68,7 +83,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<List<dynamic>> fetchSearchOptions(String searchInput) async {
-    var url = "http://localhost:8000/search/" + searchInput;
+    var url = "http://10.0.3.2:5000/search/" + searchInput;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -80,7 +95,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<Food> fetchFood(String nutritionixId) async {
-    var url = "http://localhost:8000/retrieveFood/" + nutritionixId;
+    var url = "http://10.0.3.2:5000/retrieveFood/" + nutritionixId;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

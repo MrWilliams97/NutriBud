@@ -1,11 +1,15 @@
 import "package:flutter/material.dart";
 import 'package:hello_world/models/food.dart';
+import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/services/database.dart';
+import 'package:provider/provider.dart';
+import 'package:hello_world/models/meal.dart';
 
 class AddFood extends StatefulWidget {
   Food food;
-
-  AddFood({this.food});
+  FoodDiary foodDiary;
+  AddFood({this.food, this.foodDiary});
 
   @override
   _AddFoodState createState() => _AddFoodState();
@@ -14,6 +18,13 @@ class AddFood extends StatefulWidget {
 class _AddFoodState extends State<AddFood> {
   @override
   Widget build(BuildContext context) {
+    var meals = Provider.of<List<Meal>>(context);
+
+    var mealsForFoodDiary = meals
+        .where((meal) => meal.foodDiaryId == widget.foodDiary.foodDiaryId)
+        .map((meal) => meal.mealId)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.red, title: Text("Food")),
       body: ListView(
@@ -95,9 +106,76 @@ class _AddFoodState extends State<AddFood> {
               borderRadius: new BorderRadius.circular(18.0),
               side: BorderSide(color: Colors.red)),
           onPressed: () async {
+            var foods = DatabaseService(uid: widget.foodDiary.userId).foods;
+            var foodsForFoodDiary = foods
+                .where(
+                    (mealFood) => mealsForFoodDiary.contains(mealFood.mealId))
+                .toList();
+
+            double totalCalories = 0;
+            double totalFat = 0;
+            double totalProtein = 0;
+            double totalCarbs = 0;
+            for (var food in foodsForFoodDiary) {
+              totalCalories += food.calories;
+              totalFat += food.fat;
+              totalProtein += food.protein;
+              totalCarbs += food.carbohydrates;
+            }
+
+            var userSettings = Provider.of<List<UserSettings>>(context);
+            var userSetting = userSettings.firstWhere(
+                (userSetting) => userSetting.userId == widget.foodDiary.userId);
+
+            var kgsInPound = 0.453592;
+            var userAge =
+                (DateTime.now().difference(userSetting.dateOfBirth).inDays /
+                        365)
+                    .floor();
+
+            var bmr =
+                10 * userSetting.ongoingFitnessGoal.startWeight * kgsInPound +
+                    6.25 * userSetting.height / 100.0 -
+                    5 * userAge +
+                    5;
+
+            if (!userSetting.isMale) {
+              bmr =
+                  10 * userSetting.ongoingFitnessGoal.startWeight * kgsInPound +
+                      6.25 * userSetting.height / 100.0 -
+                      5 * userAge -
+                      161;
+            }
+
+            var daysUntilGoalEnd = userSetting.ongoingFitnessGoal.endDate
+                .difference(DateTime.now())
+                .inDays;
+            var calorieConsumption = 3500 *
+                (userSetting.ongoingFitnessGoal.endWeight -
+                    userSetting.ongoingFitnessGoal.startWeight) /
+                daysUntilGoalEnd.toDouble();
+
+            var caloriesNeeded = (bmr + calorieConsumption).floor();
+
+            var proteinGoal = caloriesNeeded *
+                userSetting.ongoingFitnessGoal.calorieGoal.proteinPercentage;
+            var carbGoal = caloriesNeeded *
+                userSetting.ongoingFitnessGoal.calorieGoal.carbsPercentage;
+            var fatGoal = caloriesNeeded *
+                userSetting.ongoingFitnessGoal.calorieGoal.fatsPercentage;
+
+            widget.foodDiary.savedCalorieGoal =
+                totalCalories / (caloriesNeeded.toDouble());
+            widget.foodDiary.savedCarbGoal = totalCarbs / (carbGoal.toDouble());
+            widget.foodDiary.savedFatGoal = totalFat / (fatGoal.toDouble());
+            widget.foodDiary.savedProteinGoal =
+                totalProtein / (proteinGoal.toDouble());
+
             await DatabaseService().uploadFoodData(widget.food);
-            Navigator.of(context)
-              .popUntil(ModalRoute.withName("/AddMeal"));
+            DatabaseService(uid: widget.foodDiary.userId)
+                .updateUserData(widget.foodDiary);
+
+            Navigator.of(context).popUntil(ModalRoute.withName("/AddMeal"));
           },
           color: Colors.red,
           textColor: Colors.white,

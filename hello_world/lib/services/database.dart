@@ -29,15 +29,14 @@ class DatabaseService {
   final CollectionReference userSettingsCollection =
       Firestore.instance.collection("userSettings");
 
-  Future updateUserData(DateTime foodDiaryDate, String foodDiaryId) async {
-    return await foodDiariesCollection.document(foodDiaryId).setData({
+  Future updateUserData(FoodDiary foodDiary) async {
+    return await foodDiariesCollection.document(foodDiary.foodDiaryId).setData({
       "userId": uid,
-      "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiaryDate),
+      "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiary.foodDiaryDate),
       "savedCalorieGoal": null,
       "savedFatGoal": null,
       "savedCarbGoal": null,
       "savedProteinGoal": null,
-      "meals": null,
     });
   }
 
@@ -101,8 +100,7 @@ class DatabaseService {
           savedCalorieGoal: savedCalorieGoal ?? null,
           savedFatGoal: savedFatGoal ?? null,
           savedCarbGoal: savedCarbGoal ?? null,
-          savedProteinGoal: savedProteinGoal ?? null,
-          meals: meals ?? new List<String>());
+          savedProteinGoal: savedProteinGoal ?? null);
     }).toList();
   }
 

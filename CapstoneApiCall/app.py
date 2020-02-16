@@ -113,6 +113,7 @@ def sendImage():
 
 @app.route("/search/<searchInput>")
 def searchFood(searchInput):
+    print(searchInput)
     url = "https://trackapi.nutritionix.com/v2/search/instant?query="+searchInput
 
     headers = {'content-type': 'application/json', 'x-app-id' : ACCESS_KEY, 'x-app-key' : SECRET_KEY, 'x-remote-user-id':'0'}
