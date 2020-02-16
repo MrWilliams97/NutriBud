@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hello_world/models/calorieGoal.dart';
+import 'package:hello_world/models/fitnessGoal.dart';
 import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/models/gainRivalsModel.dart';
@@ -42,10 +44,12 @@ class DatabaseService {
   Future updateUserSettings(UserSettings userSettings) async {
     return await userSettingsCollection.document(userSettings.userId).setData({
       "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+      "isMale": userSettings.isMale,
       "firstName": userSettings.firstName,
       "lastName": userSettings.lastName,
       "height": userSettings.height,
-      "userName": userSettings.userName
+      "userName": userSettings.userName,
+      "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
     });
   }
 
@@ -166,25 +170,61 @@ class DatabaseService {
   }
 
   List<UserSettings> _userSettingsFromSnapshot(QuerySnapshot snapshot) {
-    var userSettings = snapshot.documents.map((doc){
-        var userId = doc.documentID;
-        var firstName = doc.data['firstName'];
-        var lastName = doc.data['lastName'];
-        var dateOfBirth = DateTime.parse(doc.data['dateOfBirth']);
-        var userName = doc.data['userName'];
-        var height = doc.data['height'];
+    var userSettings = snapshot.documents.map((doc) {
+      var userId = doc.documentID;
+      var isMale = doc.data['isMale'];
+      var firstName = doc.data['firstName'];
+      var lastName = doc.data['lastName'];
+      var dateOfBirth = DateTime.parse(doc.data['dateOfBirth']);
+      var userName = doc.data['userName'];
+      var height = doc.data['height'];
 
- 
+      try {
+        var carbsPercentage =
+            doc.data['fitnessGoal']['calorieGoal']['carbsPercentage'];
+        var fatsPercentage =
+            doc.data['fitnessGoal']['calorieGoal']['fatsPercentage'];
+        var proteinPercentage =
+            doc.data['fitnessGoal']['calorieGoal']['proteinPercentage'];
+        CalorieGoal calorieGoal = new CalorieGoal(
+            carbsPercentage: carbsPercentage,
+            fatsPercentage: fatsPercentage,
+            proteinPercentage: proteinPercentage);
+
+        var fitnessGoalStartDate = doc.data['fitnessGoal']['startDate'];
+        var fitnessGoalEndDate = doc.data['fitnessGoal']['endDate'];
+        var fitnessGoalStartWeight = doc.data['fitnessGoal']['startWeight'];
+        var fitnessGoalEndWeight = doc.data['fitnessGoal']['endWeight'];
+
+        FitnessGoal ongoingFitnessGoal = new FitnessGoal(
+            startDate: fitnessGoalStartDate,
+            endDate: fitnessGoalEndDate,
+            startWeight: fitnessGoalStartWeight,
+            endWeight: fitnessGoalEndWeight,
+            calorieGoal: calorieGoal);
+
         var userSetting = new UserSettings(
             userId: userId,
+            isMale: isMale,
+            firstName: firstName,
+            lastName: lastName,
+            height: height.toDouble(),
+            userName: userName,
+            dateOfBirth: dateOfBirth,
+            ongoingFitnessGoal: ongoingFitnessGoal);
+
+        return userSetting;
+      } catch (e) {
+        return new UserSettings(
+            userId: userId,
+            isMale: isMale,
             firstName: firstName,
             lastName: lastName,
             height: height.toDouble(),
             userName: userName,
             dateOfBirth: dateOfBirth);
-
-        return userSetting;
-     }).toList();
+      }
+    }).toList();
 
     return userSettings;
   }

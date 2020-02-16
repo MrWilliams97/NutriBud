@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/calorieGoal.dart';
+import 'package:hello_world/models/fitnessGoal.dart';
 import 'package:hello_world/models/user.dart';
 import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/services/database.dart';
@@ -133,6 +135,9 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                     } else {
                       widget.currentUser.height =
                           double.parse(customController.text.toString());
+
+                      // foodDiary.caloriesBurned = inputString
+                      // fo
                       Navigator.of(context).pop();
                     }
                   });
@@ -203,15 +208,149 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                             null) {
                           _notDouble = true;
                         } else {
-                          widget.currentUser.height =
-                              double.parse(customController.text.toString());
-                          Navigator.of(context).pop();
+                          FitnessGoal fitnessGoal = new FitnessGoal(
+                              startDate: DateTime.now(),
+                              endDate: calorieGoalDate,
+                              startWeight: double.parse(customController.text),
+                              endWeight:
+                                  double.parse(goalWeightController.text));
+                          widget.currentUser.ongoingFitnessGoal = fitnessGoal;
+                          _createCalorieBreakdownDialog(context);
                         }
                       });
                     },
                   )
                 ],
               ),
+            );
+          });
+        });
+  }
+
+  _createCalorieBreakdownDialog(BuildContext context) {
+    var kgsInPound = 0.453592;
+    var userAge =
+        (DateTime.now().difference(widget.currentUser.dateOfBirth).inDays / 365)
+            .floor();
+
+    var bmr =
+        10 * widget.currentUser.ongoingFitnessGoal.startWeight * kgsInPound +
+            6.25 * widget.currentUser.height / 100.0 -
+            5 * userAge +
+            5;
+    
+    if (!widget.currentUser.isMale){
+      bmr = 10 * widget.currentUser.ongoingFitnessGoal.startWeight * kgsInPound + 6.25 * widget.currentUser.height / 100.0 - 5 * userAge - 161;
+    }
+
+    var goalNumberOfDays = widget.currentUser.ongoingFitnessGoal.endDate
+        .difference(widget.currentUser.ongoingFitnessGoal.startDate)
+        .inDays;
+    var calorieConsumption = 3500 *
+        (widget.currentUser.ongoingFitnessGoal.endWeight -
+            widget.currentUser.ongoingFitnessGoal.startWeight) /
+        goalNumberOfDays.toDouble();
+    var caloriesNeeded = (bmr + calorieConsumption).floor();
+
+    var carbsSelection = 0.0;
+    var fatsSelection = 0.0;
+    var proteinSelection = 0.0;
+    var disableCarbs = false;
+    var disableFats = true;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              title: Text("Create Calorie Breakdown"),
+              content: Column(
+                children: <Widget>[
+                  Text("Calories Required:" + caloriesNeeded.toString()),
+                  Text("Carbohydrates (g): " +
+                      carbsSelection.toStringAsFixed(2)),
+                  Slider(
+                    value: carbsSelection.toDouble(),
+                    max: caloriesNeeded / 4.0,
+                    label: "$carbsSelection",
+                    min: 0,
+                    onChanged: (double carbs) {
+                      setState(() {
+                        if (disableCarbs == false) {
+                          carbsSelection = carbs;
+                        } else {
+                          return null;
+                        }
+                      });
+                    },
+                    onChangeEnd: (double carbs) {
+                      setState(() {
+                        if (disableCarbs == false) {
+                          carbsSelection = carbs;
+                          disableCarbs = true;
+                          disableFats = false;
+                        }
+                      });
+                    },
+                  ),
+                  Text("Fats (g): " + fatsSelection.toStringAsFixed(2)),
+                  Slider(
+                    value: fatsSelection.toDouble(),
+                    max: (caloriesNeeded - carbsSelection * 4.0) / 9.0,
+                    min: 0,
+                    label: "$fatsSelection",
+                    onChanged: (double fats) {
+                      setState(() {
+                        if (disableFats == false) {
+                          fatsSelection = fats;
+                        } else {
+                          return null;
+                        }
+                      });
+                    },
+                    onChangeEnd: (double fats) {
+                      setState(() {
+                        proteinSelection = (caloriesNeeded -
+                                carbsSelection * 4.0 -
+                                fatsSelection * 9.0) /
+                            4.0;
+                      });
+                    },
+                  ),
+                  Text("Protein (g): " + proteinSelection.toStringAsFixed(2)),
+                  Slider(
+                      value: proteinSelection.toDouble(),
+                      max: proteinSelection,
+                      min: 0,
+                      label: "$proteinSelection",
+                      onChanged: (double fats) {
+                        setState(() {
+                          return null;
+                        });
+                      },
+                      onChangeEnd: (double fats) {}),
+                ],
+              ),
+              actions: <Widget>[
+                MaterialButton(
+                  child: Text('Submit'),
+                  onPressed: () {
+                    setState(() {
+                      CalorieGoal calorieGoal = new CalorieGoal(
+                          carbsPercentage:
+                              (carbsSelection * 4.0) / caloriesNeeded,
+                          proteinPercentage:
+                              (proteinSelection * 4.0) / caloriesNeeded,
+                          fatsPercentage:
+                              (fatsSelection * 9.0) / caloriesNeeded);
+                      widget.currentUser.ongoingFitnessGoal.calorieGoal =
+                          calorieGoal;
+                    });
+
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                )
+              ],
             );
           });
         });
@@ -308,6 +447,26 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                       )),
                     ]),
                     DataRow(cells: [
+                      DataCell(Text('Gender')),
+                      DataCell(Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Text("M"),
+                          Switch(
+                            value: !widget.currentUser.isMale,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.currentUser.isMale = !widget.currentUser.isMale;
+                              });
+                            },
+                            activeTrackColor: Colors.pinkAccent,
+                            activeColor: Colors.pink,
+                          ),
+                          Text("F")
+                        ],
+                      )),
+                    ]),
+                    DataRow(cells: [
                       DataCell(Text('Username')),
                       DataCell(Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -359,7 +518,11 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           InkWell(
-                            child: Text(widget.currentUser.height.toString(),
+                            child: Text(
+                                widget.currentUser.ongoingFitnessGoal != null
+                                    ? DateFormat("yyyy-MM-dd").format(widget
+                                        .currentUser.ongoingFitnessGoal.endDate)
+                                    : "",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(color: Color(0xFF000000))),
                             onTap: () {
