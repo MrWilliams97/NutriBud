@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/meal.dart';
 import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/GainRivals/GainRivals.dart';
 import 'package:hello_world/screens/home/foodDiaryDetails.dart';
@@ -83,7 +85,19 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Timelines()),
+                  MaterialPageRoute(builder: (context) => 
+                  StreamProvider<List<FoodDiary>>.value(
+                    value: DatabaseService(uid: widget.userId).foodDiaries,
+                    child: StreamProvider<List<UserSettings>>.value(
+                      value: DatabaseService(uid: widget.userId).userSettings,
+                      child: StreamProvider<List<Meal>>.value(
+                        value: DatabaseService(uid: widget.userId).meals,
+                        child: StreamProvider<List<Food>>.value(
+                          value: DatabaseService(uid: widget.userId).foods,
+                          child: Timelines(),
+                        ))
+                    ),)
+                  ),
                 );
               },
               padding: EdgeInsets.only(left: 20, right: 20),
