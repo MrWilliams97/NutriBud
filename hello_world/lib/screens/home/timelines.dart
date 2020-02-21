@@ -1,6 +1,4 @@
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:charts_flutter/src/text_element.dart' as chartsTextElement;
-import 'package:charts_flutter/src/text_style.dart' as chartsTextStyle;
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
