@@ -33,10 +33,10 @@ class DatabaseService {
     return await foodDiariesCollection.document(foodDiary.foodDiaryId).setData({
       "userId": uid,
       "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiary.foodDiaryDate),
-      "savedCalorieGoal": null,
-      "savedFatGoal": null,
-      "savedCarbGoal": null,
-      "savedProteinGoal": null,
+      "savedCalorieGoal": foodDiary.savedCalorieGoal,
+      "savedFatGoal": foodDiary.savedFatGoal,
+      "savedCarbGoal": foodDiary.savedCarbGoal,
+      "savedProteinGoal": foodDiary.savedProteinGoal,
     });
   }
 
@@ -91,7 +91,6 @@ class DatabaseService {
       var savedFatGoal = doc.data['savedFatGoal'];
       var savedCarbGoal = doc.data['savedCarbGoal'];
       var savedProteinGoal = doc.data['savedProteinGoal'];
-      var meals = doc.data['meals'];
 
       return FoodDiary(
           foodDiaryId: doc.documentID,
@@ -189,8 +188,8 @@ class DatabaseService {
             fatsPercentage: fatsPercentage,
             proteinPercentage: proteinPercentage);
 
-        var fitnessGoalStartDate = doc.data['fitnessGoal']['startDate'];
-        var fitnessGoalEndDate = doc.data['fitnessGoal']['endDate'];
+        var fitnessGoalStartDate = DateTime.parse(doc.data['fitnessGoal']['startDate']);
+        var fitnessGoalEndDate = DateTime.parse(doc.data['fitnessGoal']['endDate']);
         var fitnessGoalStartWeight = doc.data['fitnessGoal']['startWeight'];
         var fitnessGoalEndWeight = doc.data['fitnessGoal']['endWeight'];
 

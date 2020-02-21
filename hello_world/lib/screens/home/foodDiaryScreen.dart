@@ -167,6 +167,7 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
                   fontSize: 50,
                   fontWeight: FontWeight.bold),
             )),
+      
         GestureDetector(
             child: Icon(Icons.arrow_right, size: 50, color: Colors.white),
             onTap: () {
@@ -177,4 +178,6 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
       ],
     );
   }
+
+  
 }

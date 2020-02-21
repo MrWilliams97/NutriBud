@@ -60,10 +60,10 @@ class _SearchFoodState extends State<SearchFood> {
              Navigator.push(
                   context,
                   MaterialPageRoute(
-                          builder: (context) => StreamProvider<List<Meal>>.value(
-                            value: DatabaseService(uid: widget.foodDiary.userId).meals,
-                            child: StreamProvider<List<UserSettings>>.value(
-                              value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                          builder: (context) => StreamProvider<List<UserSettings>>.value(
+                            value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                            child: StreamProvider<List<Meal>>.value(
+                              value: DatabaseService(uid: widget.foodDiary.userId).meals,
                               child: StreamProvider<List<Food>>.value(
                                 value: DatabaseService(uid: widget.foodDiary.userId).foods,
                                 child: AddFood(food: food, foodDiary: widget.foodDiary)

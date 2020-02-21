@@ -18,7 +18,9 @@ class AddFood extends StatefulWidget {
 class _AddFoodState extends State<AddFood> {
   @override
   Widget build(BuildContext context) {
+    var userSettings = Provider.of<List<UserSettings>>(context);
     var meals = Provider.of<List<Meal>>(context);
+    var foods = Provider.of<List<Food>>(context);
 
     var mealsForFoodDiary = meals
         .where((meal) => meal.foodDiaryId == widget.foodDiary.foodDiaryId)
@@ -106,7 +108,6 @@ class _AddFoodState extends State<AddFood> {
               borderRadius: new BorderRadius.circular(18.0),
               side: BorderSide(color: Colors.red)),
           onPressed: () async {
-            var foods = DatabaseService(uid: widget.foodDiary.userId).foods;
             var foodsForFoodDiary = foods
                 .where(
                     (mealFood) => mealsForFoodDiary.contains(mealFood.mealId))
@@ -123,7 +124,7 @@ class _AddFoodState extends State<AddFood> {
               totalCarbs += food.carbohydrates;
             }
 
-            var userSettings = Provider.of<List<UserSettings>>(context);
+            
             var userSetting = userSettings.firstWhere(
                 (userSetting) => userSetting.userId == widget.foodDiary.userId);
 

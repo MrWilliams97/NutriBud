@@ -17,7 +17,7 @@ class Wrapper extends StatelessWidget {
     } else {
       //Go to the Home Screen of NutriBud
       return StreamProvider.value(
-        value: DatabaseService().meals,
+        value: DatabaseService(uid: user.uid).meals,
         child: FoodDiaryScreen()
       );
     }

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/models/user.dart';
 import 'package:uuid/uuid.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class FoodDiaryDetails extends StatelessWidget {
   final DateTime foodDiaryDate;
@@ -20,7 +21,7 @@ class FoodDiaryDetails extends StatelessWidget {
     final user = Provider.of<User>(context);
     var userId = user.uid;
 
-    if (foodDiaries == null){
+    if (foodDiaries == null) {
       return Text("");
     }
 
@@ -37,9 +38,9 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
       var foodDiaryId = Uuid().v4();
-      FoodDiary foodDiary = new FoodDiary(foodDiaryDate: foodDiaryDate, foodDiaryId: foodDiaryId);
-      DatabaseService(uid: userId.toString())
-          .updateUserData(foodDiary);
+      FoodDiary foodDiary =
+          new FoodDiary(foodDiaryDate: foodDiaryDate, foodDiaryId: foodDiaryId);
+      DatabaseService(uid: userId.toString()).updateUserData(foodDiary);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
@@ -61,62 +62,57 @@ class FoodDiaryDetails extends StatelessWidget {
             DataCell(Text("Meal #" + count.toString())),
             DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      settings: RouteSettings(name: "/AddMeal"),
-                      builder: (context) => StreamProvider<List<Food>>.value(
-                          value: DatabaseService(uid: userId).foods,
-                          child: AddMeal(
-                            foodDiary: foodDiary,
-                            mealId: meal.mealId,
-                          )),
-                    ));
-              })
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    settings: RouteSettings(name: "/AddMeal"),
+                    builder: (context) => StreamProvider<List<Food>>.value(
+                        value: DatabaseService(uid: userId).foods,
+                        child: AddMeal(
+                          foodDiary: foodDiary,
+                          mealId: meal.mealId,
+                        )),
+                  ));
+            })
           ]));
+          count++;
         }
-        count++;
       }
     }
 
+    var calorieChart = _buildGoalChart(Colors.yellow, foodDiary.savedCalorieGoal);
+    var fatsChart = _buildGoalChart(Colors.red, foodDiary.savedFatGoal);
+    var carbsChart = _buildGoalChart(Colors.blue, foodDiary.savedCarbGoal);
+    var proteinChart = _buildGoalChart(Colors.green, foodDiary.savedProteinGoal);
+
     return ListView(
       children: <Widget>[
-        Padding(padding: EdgeInsets.only(top: 200)),
+        Padding(padding: EdgeInsets.only(top: 120)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircleAvatar(
-                backgroundColor: Colors.orange,
-                radius: 50,
-                child: Text("         0%\nCalorie Goal",
-                    style: TextStyle(color: Colors.white))),
-            Padding(padding: EdgeInsets.all(20)),
-            CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 50,
-                child: Text("      0%\nFat Goal",
-                    style: TextStyle(
-                      color: Colors.white,
-                    )))
+            SizedBox(
+                child: calorieChart,
+                height: 170,
+                width: 170),
+            SizedBox(
+                child:  fatsChart,
+                height: 170,
+                width: 170)
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircleAvatar(
-                backgroundColor: Colors.blue,
-                radius: 50,
-                child: Text("        0%\nCarbs Goal",
-                    style: TextStyle(color: Colors.white))),
-            Padding(padding: EdgeInsets.all(20)),
-            CircleAvatar(
-                backgroundColor: Colors.green,
-                radius: 50,
-                child: Text("          0%\nProtein Goal",
-                    style: TextStyle(
-                      color: Colors.white,
-                    )))
+            SizedBox(
+                child: carbsChart,
+                height: 170,
+                width: 170),
+            SizedBox(
+                child: proteinChart,
+                height: 170,
+                width: 170)
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
@@ -154,5 +150,48 @@ class FoodDiaryDetails extends StatelessWidget {
         ], rows: mealsDisplay)
       ],
     );
+  }
+
+  Widget _buildGoalChart(Color color, double savedGoal){
+    var caloriesGoal = _createSampleData(color, savedGoal);
+    return Stack(
+                  children: <Widget>[
+                    charts.PieChart(caloriesGoal,
+                        animate: true,
+                        defaultRenderer:
+                            new charts.ArcRendererConfig(arcWidth: 10)),
+                    Center(
+                      child: Text(
+                        "${(savedGoal != null) ? (savedGoal * 100).toStringAsFixed(2) + '%' : 'N/A'}",
+                        style: TextStyle(
+                            fontSize: 30.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                );
+  }
+
+  List<charts.Series<double, double>> _createSampleData(Color color, double percentage) {
+    List<double> data = [100];
+    if (percentage != null){
+      data = [percentage, 1 - percentage];
+    }
+    
+    return [
+      new charts.Series<double, double>(
+        id: 'Goal',
+        domainFn: (double listPercentage, _) => listPercentage,
+        measureFn: (double listPercentage, _) => listPercentage,
+        colorFn: (double listPercentage, _) {
+          if (listPercentage == percentage) {
+            return charts.ColorUtil.fromDartColor(color);
+          }
+          return charts.ColorUtil.fromDartColor(Colors.blueGrey[200]);
+        },
+        data: data,
+      )
+    ];
   }
 }
