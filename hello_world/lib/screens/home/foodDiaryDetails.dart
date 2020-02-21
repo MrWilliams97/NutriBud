@@ -116,8 +116,18 @@ class FoodDiaryDetails extends StatelessWidget {
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
-        Row(
+        Column(
           children: <Widget>[
+            Text("Current Calories Burned: "+foodDiary.caloriesBurned.toString()),
+            FlatButton.icon(
+              onPressed: () {
+                //popup to input cals burned
+                _createCalsBurnedDialog(context,foodDiary);
+              },
+              icon: Icon(Icons.add, size: 26),
+              label:
+                  Text("Set Calories Burned", style: TextStyle(fontSize: 24)),
+            ),
             FlatButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -193,5 +203,38 @@ class FoodDiaryDetails extends StatelessWidget {
         data: data,
       )
     ];
+  }
+  
+  _createCalsBurnedDialog(BuildContext context,FoodDiary foodDiary) {
+    TextEditingController customController = TextEditingController();
+    bool _notDouble = false;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Set Calories Burned"),
+            content: TextField(
+                controller: customController,
+                decoration: InputDecoration(
+                  errorText: _notDouble ? 'Value must be a number' : null,
+                )),
+            actions: <Widget>[
+              MaterialButton(
+                child: Text('Submit'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (double.tryParse(customController.text.toString()) ==
+                        null) {
+                      _notDouble = true;
+                  }else{
+                    //set calories burned val in databse
+                    foodDiary.caloriesBurned = int.parse(customController.text.toString());
+                    DatabaseService(uid: foodDiary.userId).updateUserData(foodDiary);
+                  }
+                },
+              )
+            ],
+          );
+        });
   }
 }

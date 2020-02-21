@@ -32,6 +32,7 @@ class DatabaseService {
   Future updateUserData(FoodDiary foodDiary) async {
     return await foodDiariesCollection.document(foodDiary.foodDiaryId).setData({
       "userId": uid,
+      "caloriesBurned": foodDiary.caloriesBurned,
       "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiary.foodDiaryDate),
       "savedCalorieGoal": foodDiary.savedCalorieGoal,
       "savedFatGoal": foodDiary.savedFatGoal,
@@ -86,6 +87,7 @@ class DatabaseService {
   List<FoodDiary> _foodDiariesFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
       var userId = doc.data['userId'];
+      var caloriesBurned = doc.data['caloriesBurned'];
       var parsedDate = DateTime.parse(doc.data['foodDiaryDate']);
       var savedCalorieGoal = doc.data['savedCalorieGoal'];
       var savedFatGoal = doc.data['savedFatGoal'];
@@ -95,6 +97,7 @@ class DatabaseService {
       return FoodDiary(
           foodDiaryId: doc.documentID,
           userId: userId ?? '',
+          caloriesBurned: caloriesBurned ?? 0,
           foodDiaryDate: parsedDate ?? null,
           savedCalorieGoal: savedCalorieGoal ?? null,
           savedFatGoal: savedFatGoal ?? null,
