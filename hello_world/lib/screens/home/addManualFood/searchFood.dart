@@ -54,25 +54,25 @@ class _SearchFoodState extends State<SearchFood> {
 
     //For each option in search options, create a row for it
     for (var option in searchOptions) {
-      widgets.add(FlatButton.icon(
-          onPressed: () async {
-            var food = await fetchFood(option['nixItem']);
-             Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                          builder: (context) => StreamProvider<List<UserSettings>>.value(
-                            value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
-                            child: StreamProvider<List<Meal>>.value(
-                              value: DatabaseService(uid: widget.foodDiary.userId).meals,
-                              child: StreamProvider<List<Food>>.value(
-                                value: DatabaseService(uid: widget.foodDiary.userId).foods,
-                                child: AddFood(food: food, foodDiary: widget.foodDiary)
-                              ),
-                          ),
-                )));
-          },
-          label: Text(option['brandName'] + "    " + option['foodName']),
-          icon: Icon(Icons.arrow_right)));
+
+      Widget leadingWidget = Icon(Icons.fastfood);
+      if (option['photo'] != null){
+        leadingWidget = Image.network(option['photo']);
+      }
+
+      widgets.add(
+        Card(child: Column(
+          children: <Widget>[
+            ListTile(
+              leading: leadingWidget,
+              title: Text(option['brandName']),
+              subtitle: Text(option['foodName']),
+              trailing: Icon(Icons.arrow_right),
+            )
+          ],
+          ),
+        )
+      );
     }
 
     return Container(

@@ -87,7 +87,7 @@ class FoodDiaryDetails extends StatelessWidget {
 
     return ListView(
       children: <Widget>[
-        Padding(padding: EdgeInsets.only(top: 120)),
+        Padding(padding: EdgeInsets.only(top: 40)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

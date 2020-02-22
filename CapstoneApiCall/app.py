@@ -127,8 +127,13 @@ def searchFood(searchInput):
         x = {
             "brandName": item['brand_name'],
             "foodName": item['food_name'],
-            "nixItem": item['nix_item_id']
+            "nixItem": item['nix_item_id'],
+            "photo": None,
         }
+
+        if not 'highres' in item['photo']:
+            x['photo'] = item['photo']['thumb']
+
         objectList.append(x)
     
     return jsonify(objectList)
