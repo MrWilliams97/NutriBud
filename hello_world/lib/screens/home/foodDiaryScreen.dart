@@ -66,46 +66,35 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
                   child: CircleAvatar(
                   backgroundImage: ExactAssetImage('assets/images/logo.png'),
                   backgroundColor: Colors.transparent,
-                  radius: 120.0,))
-              ],),
-          ),
-          body: Center(
-            child: StreamProvider.value(
-                value: DatabaseService().meals,
-                child: FoodDiaryDetails(foodDiaryDate: diaryDate)),
-          ),
-          bottomNavigationBar: _buildBottomAppBar(),
-        ),
-      ])),
-    );
-  }
-
-  Widget _buildBottomAppBar() {
-    return BottomAppBar(
-        color: Colors.red,
-        child: new Row(
-          children: <Widget>[
-            new FlatButton(
-              onPressed: () async {
-                await _authService.signOut();
-              },
-              padding: EdgeInsets.only(left: 30, right: 20),
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Icon(
-                    Icons.people,
-                    color: Colors.white,
+                  radius: 120.0,)),
+                new ListTile(
+                  title: Text("Account Settings", style: TextStyle(color: Colors.red)),
+                  trailing: new Icon(
+                    Icons.settings,
+                    color: Colors.red
                   ),
-                  new Text("Sign Out", style: TextStyle(color: Colors.white))
-                ],
-              ),
-            ),
-            new FlatButton(
-              onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
+                  onTap: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: "/UserSettings"),
+                        builder: (context) =>
+                            StreamProvider<List<UserSettings>>.value(
+                                value: DatabaseService(uid: widget.userId)
+                                    .userSettings,
+                                child: UserSettingsScreen())));
+                  }
+                ),
+                new ListTile(
+                  title: Text("Timelines", style: TextStyle(color: Colors.red)),
+                  trailing: new Icon(
+                    Icons.timeline,
+                    color: Colors.red,
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
                       builder: (context) =>
                           StreamProvider<List<FoodDiary>>.value(
                             value:
@@ -122,65 +111,39 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
                                       child: Timelines(),
                                     ))),
                           )),
-                );
-              },
-              padding: EdgeInsets.only(left: 20, right: 20),
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Icon(
-                    Icons.timeline,
-                    color: Colors.white,
+                    );
+                  }
+                ),
+                new ListTile(
+                  title: Text("GainRivals", style: TextStyle(color: Colors.red)),
+                  trailing: new Icon(Icons.gamepad, color: Colors.red),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GainRivals()),
+                    );
+                  }
+                ),
+                new ListTile(
+                  title: Text("Sign Out", style: TextStyle(color: Colors.red)),
+                  trailing: new Icon(
+                    Icons.exit_to_app,
+                    color: Colors.red,
                   ),
-                  new Text("Timeline", style: TextStyle(color: Colors.white))
-                ],
-              ),
-            ),
-            new FlatButton(
-              onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GainRivals()),
-                );
-              },
-              padding: EdgeInsets.only(left: 20, right: 20),
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Icon(
-                    Icons.games,
-                    color: Colors.white,
-                  ),
-                  new Text("GainRivals", style: TextStyle(color: Colors.white))
-                ],
-              ),
-            ),
-            new FlatButton(
-              onPressed: () async {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        settings: RouteSettings(name: "/UserSettings"),
-                        builder: (context) =>
-                            StreamProvider<List<UserSettings>>.value(
-                                value: DatabaseService(uid: widget.userId)
-                                    .userSettings,
-                                child: UserSettingsScreen())));
-              },
-              padding: EdgeInsets.only(top: 10, bottom: 10, left: 20),
-              child: new Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  new Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                  ),
-                  new Text("Profile", style: TextStyle(color: Colors.white))
-                ],
-              ),
-            )
-          ],
-        ));
+                  onTap: () async {
+                    await _authService.signOut();
+                  }
+                ),
+              ],),
+          ),
+          body: Center(
+            child: StreamProvider.value(
+                value: DatabaseService().meals,
+                child: FoodDiaryDetails(foodDiaryDate: diaryDate)),
+          ),
+        ),
+      ])),
+    );
   }
 
   // Contains the Top App Bar's Date, along with Arrow Icons to adjust the date
