@@ -19,6 +19,8 @@ class _SignInState extends State<SignIn> {
   String email = '';
   String password = '';
 
+  String errorText = '';
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -45,6 +47,12 @@ class _SignInState extends State<SignIn> {
                             Column(
                               children: <Widget>[
                                 _buildPasswordWidget(),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 12.5, top: 5),
+                                    child: Text(errorText, textAlign: TextAlign.left, style: TextStyle(color: Colors.white, fontSize: 16)),)
+                                ),
                                 _buildForgotPasswordWidget(),
                                 _buildRememberMeWidget(),
                                 _buildSignInButton(),
@@ -229,7 +237,19 @@ class _SignInState extends State<SignIn> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       color: Colors.white,
       onPressed: () async {
-        await _authService.signInEmailPassword(email, password);
+        try {
+          await _authService.signInEmailPassword(email, password);
+        } catch (e){
+          if (e.code == "ERROR_WRONG_PASSWORD"){
+            setState(() {
+              errorText = 'Invalid password';
+            });
+          } else if (e.code == "ERROR_USER_NOT_FOUND"){
+            setState(() {
+              errorText = 'User not found with email, please register';
+            });
+          }
+        }
       },
     ));
   }
