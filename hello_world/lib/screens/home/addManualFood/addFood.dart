@@ -31,33 +31,62 @@ class _AddFoodState extends State<AddFood> {
       appBar: AppBar(backgroundColor: Colors.red, title: Text("Food")),
       body: ListView(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text(widget.food.brandName + " - " + widget.food.foodName),
-              Text(widget.food.servingUnit)
-            ],
-          ),
-          TextFormField(
-              keyboardType: TextInputType.number,
-              initialValue: widget.food.servingQuantity.toString(),
-              onChanged: (value) {
-                setState(() {
-                  var oldServingQuantity = widget.food.servingQuantity;
-                  widget.food.servingQuantity = double.parse(value);
-                  var factor = widget.food.servingQuantity / oldServingQuantity;
+          Card(
+            child: Column(
+              children: <Widget>[
+                new ListTile(
+                  leading: Container(
+                    width: 100,
+                    child: TextFormField(
+                        decoration: new InputDecoration(
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(10.0),
+                            ),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        autovalidate: true,
+                        validator: (input) {
+                          RegExp regExp =
+                              new RegExp(r'^(\d{0,5}\.\d{1,2}|\d{1,5})$');
+                          if (!regExp.hasMatch(input)) {
+                            return "Input must be up to two decimal places";
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: widget.food.servingQuantity.toString(),
+                        onChanged: (value) {
+                          setState(() {
+                            var oldServingQuantity =
+                                widget.food.servingQuantity;
+                            widget.food.servingQuantity = double.parse(value);
+                            var factor = widget.food.servingQuantity /
+                                oldServingQuantity;
 
-                  widget.food.calories = widget.food.calories * factor;
-                  widget.food.fat = widget.food.fat * factor;
-                  widget.food.cholesterol = widget.food.cholesterol * factor;
-                  widget.food.sodium = widget.food.sodium * factor;
-                  widget.food.carbohydrates =
-                      widget.food.carbohydrates * factor;
-                  widget.food.fiber = widget.food.fiber * factor;
-                  widget.food.sugar = widget.food.sugar * factor;
-                  widget.food.protein = widget.food.protein * factor;
-                  widget.food.potassium = widget.food.potassium * factor;
-                });
-              }),
+                            widget.food.calories =
+                                widget.food.calories * factor;
+                            widget.food.fat = widget.food.fat * factor;
+                            widget.food.cholesterol =
+                                widget.food.cholesterol * factor;
+                            widget.food.sodium = widget.food.sodium * factor;
+                            widget.food.carbohydrates =
+                                widget.food.carbohydrates * factor;
+                            widget.food.fiber = widget.food.fiber * factor;
+                            widget.food.sugar = widget.food.sugar * factor;
+                            widget.food.protein = widget.food.protein * factor;
+                            widget.food.potassium =
+                                widget.food.potassium * factor;
+                          });
+                        }),
+                  ),
+                  title: Text(widget.food.brandName + ' (${widget.food.servingUnit})'),
+                  subtitle: Text(widget.food.foodName),
+                )
+              ],
+            ),
+          ),
           DataTable(columns: [
             DataColumn(label: Text("Nutrient")),
             DataColumn(label: Text("Amount"))
@@ -124,7 +153,6 @@ class _AddFoodState extends State<AddFood> {
               totalCarbs += food.carbohydrates;
             }
 
-            
             var userSetting = userSettings.firstWhere(
                 (userSetting) => userSetting.userId == widget.foodDiary.userId);
 
