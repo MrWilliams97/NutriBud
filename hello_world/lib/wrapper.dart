@@ -1,6 +1,6 @@
 import 'package:hello_world/screens/authenticate/authenticate.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/screens/home/foodDiaryScreen.dart';
+import 'package:hello_world/screens/home/FoodDiary/foodDiaryScreen.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/models/user.dart';

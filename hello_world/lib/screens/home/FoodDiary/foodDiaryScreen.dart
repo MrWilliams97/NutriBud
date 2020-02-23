@@ -5,7 +5,7 @@ import 'package:hello_world/models/meal.dart';
 import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/GainRivals/GainRivals.dart';
 import 'package:hello_world/screens/home/customShapeBorder.dart';
-import 'package:hello_world/screens/home/foodDiaryDetails.dart';
+import 'package:hello_world/screens/home/FoodDiary/foodDiaryDetails.dart';
 import 'package:hello_world/screens/home/timelines.dart';
 import 'package:hello_world/screens/home/userSettingsScreen.dart';
 import 'package:hello_world/services/auth.dart';

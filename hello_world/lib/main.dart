@@ -11,6 +11,7 @@ class NutriBudApp extends StatelessWidget {
     return StreamProvider.value(
       value: AuthService().user,
       child: MaterialApp(
+        title: "NutriBud",
         home: Wrapper()
       )
     );
