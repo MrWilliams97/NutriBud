@@ -27,7 +27,7 @@ class _UserSettingsState extends State<UserSettingsScreen> {
     final DateTime d = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2015),
+      firstDate: DateTime(1900),
       lastDate: DateTime(2022),
     );
     if (d != null)
