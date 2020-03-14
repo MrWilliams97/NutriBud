@@ -4,9 +4,9 @@ class UserSettings {
   String userId;
   DateTime dateOfBirth;
   bool isMale;
-  String firstName; 
-  String lastName; 
-  String userName;
+  String firstName = ""; 
+  String lastName = ""; 
+  String userName = "";
   double height;
   FitnessGoal ongoingFitnessGoal;
 

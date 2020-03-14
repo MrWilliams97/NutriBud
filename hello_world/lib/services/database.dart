@@ -42,14 +42,24 @@ class DatabaseService {
   }
 
   Future updateUserSettings(UserSettings userSettings) async {
+    if (userSettings.ongoingFitnessGoal != null){
+      return await userSettingsCollection.document(userSettings.userId).setData({
+        "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+        "isMale": userSettings.isMale,
+        "firstName": userSettings.firstName,
+        "lastName": userSettings.lastName,
+        "height": userSettings.height,
+        "userName": userSettings.userName,
+        "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
+      });
+    }
     return await userSettingsCollection.document(userSettings.userId).setData({
-      "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
-      "isMale": userSettings.isMale,
-      "firstName": userSettings.firstName,
-      "lastName": userSettings.lastName,
-      "height": userSettings.height,
-      "userName": userSettings.userName,
-      "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
+        "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+        "isMale": userSettings.isMale,
+        "firstName": userSettings.firstName,
+        "lastName": userSettings.lastName,
+        "height": userSettings.height,
+        "userName": userSettings.userName
     });
   }
 

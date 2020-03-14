@@ -248,6 +248,8 @@ class _SignInState extends State<SignIn> {
             setState(() {
               errorText = 'User not found with email, please register';
             });
+          } else {
+            print(e.code + "\n" +  e.message);
           }
         }
       },
