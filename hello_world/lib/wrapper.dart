@@ -19,8 +19,12 @@ class Wrapper extends StatelessWidget {
       return Authenticate();
     }
     if (user != null) {
+      if (userSettings == null){
+        return Container();
+      }
       var userSettingForUser =
           userSettings.where((i) => i.userId == user.uid);
+      
 
       if (userSettingForUser.length != 0) {
         return StreamProvider.value(

@@ -24,7 +24,20 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
   final AuthService _authService = AuthService();
 
   DateTime diaryDate = DateTime.now();
-  final _scaffoldKey = GlobalKey<ScaffoldState>(); 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime d = await showDatePicker(
+      context: context,
+      initialDate: diaryDate,
+      firstDate: DateTime(1940),
+      lastDate: DateTime.now(),
+    );
+    if (d != null)
+      setState(() {
+        diaryDate = d;
+      });
+  } 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
@@ -50,7 +63,9 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.calendar_today),
-                onPressed: () {},
+                onPressed: () {
+                  _selectDate(context);
+                },
               ),
             ],
           ),

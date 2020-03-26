@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hello_world/main.dart';
 import 'package:hello_world/models/user.dart';
 import 'package:hello_world/models/userSettings.dart';
+import 'package:hello_world/services/auth.dart';
 import 'package:hello_world/services/database.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  final DatabaseService _databaseService = DatabaseService();
   final int _numPages = 3;
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
@@ -114,10 +117,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Text(" It's time to put\nyour health first",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 26,
-                                        fontWeight: FontWeight.bold))
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.bold))
                                   ],
                                 ),
                                 SizedBox(
@@ -126,10 +129,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    Text("NutriBud is committed to\n helping you achieve your\n                  goals!",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20))
+                                    Text(
+                                        "NutriBud is committed to\n helping you achieve your\n                  goals!",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20))
                                   ],
                                 )
                               ],
@@ -173,7 +176,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ],
                                           onChanged: (var value) {
                                             setState(() {
-                                              widget.currentUser.firstName = value;
+                                              widget.currentUser.firstName =
+                                                  value;
                                             });
                                           },
                                           decoration: InputDecoration(
@@ -203,7 +207,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ],
                                           onChanged: (var value) {
                                             setState(() {
-                                              widget.currentUser.lastName = value;
+                                              widget.currentUser.lastName =
+                                                  value;
                                             });
                                           },
                                           decoration: InputDecoration(
@@ -229,7 +234,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ),
                                           onChanged: (var value) {
                                             setState(() {
-                                              widget.currentUser.userName = value;
+                                              widget.currentUser.userName =
+                                                  value;
                                             });
                                           },
                                           decoration: InputDecoration(
@@ -319,7 +325,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ],
                                           onChanged: (var value) {
                                             setState(() {
-                                              widget.currentUser.height = double.parse(value);
+                                              widget.currentUser.height =
+                                                  double.parse(value);
                                             });
                                           },
                                           decoration: InputDecoration(
@@ -364,11 +371,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: _buildPageIndicator()),
-                (_currentPage == 1 && widget.currentUser.firstName != null && widget.currentUser.firstName.isNotEmpty
-                                   && widget.currentUser.lastName != null &&widget.currentUser.lastName.isNotEmpty
-                                   && widget.currentUser.height != null
-                                   && widget.currentUser.userName != null && widget.currentUser.userName.isNotEmpty
-                                   && widget.currentUser.dateOfBirth != null) || (_currentPage != _numPages - 1 && _currentPage != 1)
+                (_currentPage == 1 &&
+                            widget.currentUser.firstName != null &&
+                            widget.currentUser.firstName.isNotEmpty &&
+                            widget.currentUser.lastName != null &&
+                            widget.currentUser.lastName.isNotEmpty &&
+                            widget.currentUser.height != null &&
+                            widget.currentUser.userName != null &&
+                            widget.currentUser.userName.isNotEmpty &&
+                            widget.currentUser.dateOfBirth != null) ||
+                        (_currentPage != _numPages - 1 && _currentPage != 1)
                     ? Expanded(
                         child: Align(
                             alignment: FractionalOffset.bottomRight,
@@ -399,24 +411,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           )),
       bottomSheet: _currentPage == _numPages - 1
-          ? GestureDetector(
-            onTap: () {
-              DatabaseService().updateUserSettings(widget.currentUser);
-            },
-            child: Container(
-              height: 80.0,
-              width: double.infinity,
-              color: Colors.white,
+          ? InkWell(
+              onTap: ()  async {
+                  await _databaseService.updateUserSettings(widget.currentUser);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) { return NutriBudApp(); }));
+              },
               child: Container(
-                  child: Column(children: <Widget>[
-                Padding(padding: EdgeInsets.only(top: 15.0)),
-                Text('Get Started',
-                    style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 40.0,
-                        fontWeight: FontWeight.bold))
-              ])))
-          )
+                  height: 80.0,
+                  width: double.infinity,
+                  color: Colors.white,
+                  child: Container(
+                      child: Column(children: <Widget>[
+                    Padding(padding: EdgeInsets.only(top: 15.0)),
+                    Text('Get Started',
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 40.0,
+                            fontWeight: FontWeight.bold))
+                  ]))))
           : Text(''),
     );
   }
