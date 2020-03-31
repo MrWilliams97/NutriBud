@@ -27,7 +27,7 @@ class FoodDiaryDetails extends StatelessWidget {
 
     foodDiaries = foodDiaries.where((value) => value != null).toList();
     var foodDiaryForDate = foodDiaries.where((foodDiary) =>
-        foodDiary.foodDiaryDate.day == foodDiaryDate.day &&
+        foodDiaryDate.difference(foodDiary.foodDiaryDate).inDays == 0 &&
         foodDiary.userId == userId);
 
     final now = DateTime.now();
