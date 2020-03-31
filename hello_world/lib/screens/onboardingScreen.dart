@@ -413,6 +413,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       bottomSheet: _currentPage == _numPages - 1
           ? InkWell(
               onTap: ()  async {
+                  widget.currentUser.weightEntries = new Map<String, double>();
                   await _databaseService.updateUserSettings(widget.currentUser);
                   Navigator.push(context, MaterialPageRoute(builder: (context) { return NutriBudApp(); }));
               },
