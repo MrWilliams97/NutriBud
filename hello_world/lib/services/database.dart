@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello_world/models/calorieGoal.dart';
 import 'package:hello_world/models/fitnessGoal.dart';
@@ -50,6 +52,7 @@ class DatabaseService {
         "lastName": userSettings.lastName,
         "height": userSettings.height,
         "userName": userSettings.userName,
+        "weightEntries": userSettings.weightEntries,
         "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
       });
     }
@@ -59,6 +62,7 @@ class DatabaseService {
         "firstName": userSettings.firstName,
         "lastName": userSettings.lastName,
         "height": userSettings.height,
+        "weightEntries": userSettings.weightEntries,
         "userName": userSettings.userName
     });
   }
@@ -188,7 +192,8 @@ class DatabaseService {
       var dateOfBirth = DateTime.parse(doc.data['dateOfBirth']);
       var userName = doc.data['userName'];
       var height = doc.data['height'];
-
+      Map<String, dynamic> weightEntries = doc.data.containsKey('weightEntries') ? new Map<String, dynamic>.from(doc.data['weightEntries']) : new Map<String, dynamic>();
+      Map<String, double> actualWeightEntries = weightEntries != null ? weightEntries.map((key, value) => MapEntry(key, value as double)) : null;
       try {
         var carbsPercentage =
             doc.data['fitnessGoal']['calorieGoal']['carbsPercentage'];
@@ -221,6 +226,7 @@ class DatabaseService {
             height: height.toDouble(),
             userName: userName,
             dateOfBirth: dateOfBirth,
+            weightEntries: actualWeightEntries,
             ongoingFitnessGoal: ongoingFitnessGoal);
 
         return userSetting;
@@ -232,6 +238,7 @@ class DatabaseService {
             lastName: lastName,
             height: height.toDouble(),
             userName: userName,
+            weightEntries: actualWeightEntries,
             dateOfBirth: dateOfBirth);
       }
     }).toList();

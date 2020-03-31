@@ -1,14 +1,25 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
 import 'package:hello_world/models/meal.dart';
 import 'package:hello_world/models/user.dart';
 import 'package:hello_world/models/userSettings.dart';
+import 'package:hello_world/services/database.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
-class Timelines extends StatelessWidget {
+
+class Timelines extends StatefulWidget{
+   UserSettings currentUser;
+
+  @override
+  _TimelinesState createState() => _TimelinesState();
+}
+
+class _TimelinesState extends State<Timelines> {
   @override
   Widget build(BuildContext context) {
     var userId = Provider.of<User>(context).uid;
@@ -19,7 +30,7 @@ class Timelines extends StatelessWidget {
 
     var userSetting = userSettingProvider
         .firstWhere((userSetting) => userSetting.userId == userId);
-
+    widget.currentUser = userSetting;
     List<MapEntry<String, DateTime>> foodDiaries = foodDiaryProvider
         .where((foodDiary) => foodDiary.userId == userId)
         .map((diary) => new MapEntry<String, DateTime>(
@@ -58,7 +69,8 @@ class Timelines extends StatelessWidget {
     var dateProteinSum = new List<TimeSeriesSales>();
     dateGroupForFoods.forEach((k, v) => dateProteinSum.add(new TimeSeriesSales(
         k, v.map((food) => food.key.protein).reduce((a, b) => a + b))));
-
+//sw
+    List<TimeSeriesSales> weightTimeline = widget.currentUser.weightEntries.entries.map((e) => TimeSeriesSales(DateTime.parse(e.key), e.value)).toList();
     return DefaultTabController(
         length: 5,
         child: Scaffold(
@@ -100,11 +112,94 @@ class Timelines extends StatelessWidget {
                 ),
                 ListView(
                   children: <Widget>[
-                    _createGraph("Weight", "lbs", dateCalorieSum)
+                    _createGraph("Weight", "lbs", weightTimeline),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Add New Weight Entry: ",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.blueGrey),
+                        ),
+                        IconButton(
+                            icon: Icon(Icons.border_color),
+                            tooltip: 'Add Weight Entry',
+                            onPressed: () {
+                              _createAddWeightDialog(context);
+                            },
+                          ),
+                      ],
+                    )
                   ],
                 ),
               ],
             )));
+  }
+
+  _createAddWeightDialog(BuildContext context) {
+    TextEditingController customController = TextEditingController();
+    bool _notDouble = false;
+    DateTime calorieGoalDate = DateTime.now();
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 60.0),
+              child: AlertDialog(
+                title: Text("Create Calorie Goal"),
+                content: new ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: 175.0),
+                  child: Column(children: <Widget>[
+                    Text("Insert Weight"),
+                    TextField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                                            WhitelistingTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                        controller: customController,
+                        decoration: InputDecoration(
+                          errorText:
+                              _notDouble ? 'Value must be a number' : null,
+                        )),
+                    Text("Insert Weight Entry Date"),
+                    Text(
+                        new DateFormat.yMMMMd("en_US").format(calorieGoalDate)),
+                    IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      tooltip: 'Tap to open date picker',
+                      onPressed: () async {
+                        final DateTime d = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime(1940),
+                          initialDate:  DateTime.now(),
+                          lastDate: DateTime(2022),
+                        );
+                        if (d != null)
+                          setState(() {
+                            calorieGoalDate = d;
+                          });
+                      },
+                    ),
+                  ]),
+                ),
+                actions: <Widget>[
+                  MaterialButton(
+                    child: Text('Submit'),
+                    onPressed: () {
+                      setState((){
+                        widget.currentUser.weightEntries[DateFormat("yyyy-MM-dd").format(calorieGoalDate)] = double.parse(customController.text);
+                        DatabaseService().updateUserSettings(widget.currentUser);
+                        Navigator.pop(context);
+                      });
+                    },
+                  )
+                ],
+              ),
+            );
+          });
+        });
   }
 
   Widget _createGraph(
@@ -146,6 +241,7 @@ class Timelines extends StatelessWidget {
     ];
   }
 }
+
 
 /// Sample time series data type.
 class TimeSeriesSales {

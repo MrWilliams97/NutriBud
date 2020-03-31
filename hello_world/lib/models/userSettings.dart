@@ -9,6 +9,9 @@ class UserSettings {
   String userName = "";
   double height;
   FitnessGoal ongoingFitnessGoal;
+  Map<String, double> weightEntries = new Map<String, double>();
 
-  UserSettings({this.userId, this.dateOfBirth, this.isMale, this.firstName, this.lastName, this.userName, this.height, this.ongoingFitnessGoal});
+  UserSettings({this.userId, this.dateOfBirth, this.isMale, this.firstName, this.lastName, 
+                this.userName, this.height, this.ongoingFitnessGoal, this.weightEntries});
+
 }
