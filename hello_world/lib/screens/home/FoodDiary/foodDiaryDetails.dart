@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:hello_world/models/user.dart';
 import 'package:uuid/uuid.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class FoodDiaryDetails extends StatelessWidget {
   final DateTime foodDiaryDate;
@@ -37,13 +38,9 @@ class FoodDiaryDetails extends StatelessWidget {
         foodDiaryDate.day == now.day &&
         foodDiaryDate.year == now.year) {
       var foodDiaryId = Uuid().v4();
-      FoodDiary foodDiary = new FoodDiary();
-      //initialize obj
-      foodDiary.foodDiaryDate=foodDiaryDate;
-      foodDiary.foodDiaryId=foodDiaryId;
-
-      DatabaseService(uid: userId.toString())
-          .updateUserData(foodDiary);
+      FoodDiary foodDiary =
+          new FoodDiary(foodDiaryDate: foodDiaryDate, foodDiaryId: foodDiaryId);
+      DatabaseService(uid: userId.toString()).updateUserData(foodDiary);
       return Text(DateFormat("yyyy-MM-dd").format(foodDiaryDate));
     } else if (foodDiaryForDate.length == 0) {
       return Text("No Food Diary found for this date");
@@ -72,65 +69,58 @@ class FoodDiaryDetails extends StatelessWidget {
                     builder: (context) => StreamProvider<List<Food>>.value(
                         value: DatabaseService(uid: userId).foods,
                         child: AddMeal(
-                          foodDiaryId: foodDiary.foodDiaryId,
+                          foodDiary: foodDiary,
                           mealId: meal.mealId,
                         )),
                   ));
             })
           ]));
+          count++;
         }
-        count++;
       }
     }
 
+    var calorieChart = _buildGoalChart(
+        Colors.yellow, foodDiary.savedCalorieGoal, "Calorie Goal");
+    var fatsChart =
+        _buildGoalChart(Colors.red, foodDiary.savedFatGoal, "Fat Goal");
+    var carbsChart =
+        _buildGoalChart(Colors.blue, foodDiary.savedCarbGoal, "Carbs Goal");
+    var proteinChart = _buildGoalChart(
+        Colors.green, foodDiary.savedProteinGoal, "Protein Goal");
+
     return ListView(
       children: <Widget>[
-        Padding(padding: EdgeInsets.only(top: 200)),
+        Padding(padding: EdgeInsets.only(top: 40)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircleAvatar(
-                backgroundColor: Colors.orange,
-                radius: 50,
-                child: Text("         0%\nCalorie Goal",
-                    style: TextStyle(color: Colors.white))),
-            Padding(padding: EdgeInsets.all(20)),
-            CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 50,
-                child: Text("      0%\nFat Goal",
-                    style: TextStyle(
-                      color: Colors.white,
-                    )))
+            SizedBox(
+                child: Stack(children: <Widget>[
+                  calorieChart,
+                ]),
+                height: 170,
+                width: 170),
+            SizedBox(child: fatsChart, height: 170, width: 170)
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircleAvatar(
-                backgroundColor: Colors.blue,
-                radius: 50,
-                child: Text("        0%\nCarbs Goal",
-                    style: TextStyle(color: Colors.white))),
-            Padding(padding: EdgeInsets.all(20)),
-            CircleAvatar(
-                backgroundColor: Colors.green,
-                radius: 50,
-                child: Text("          0%\nProtein Goal",
-                    style: TextStyle(
-                      color: Colors.white,
-                    )))
+            SizedBox(child: carbsChart, height: 170, width: 170),
+            SizedBox(child: proteinChart, height: 170, width: 170)
           ],
         ),
         Padding(padding: EdgeInsets.only(top: 10)),
         Column(
           children: <Widget>[
-            Text("Current Calories Burned: "+foodDiary.caloriesBurned.toString()),
+            Text("Current Calories Burned: " +
+                foodDiary.caloriesBurned.toString()),
             FlatButton.icon(
               onPressed: () {
                 //popup to input cals burned
-                _createCalsBurnedDialog(context,foodDiary);
+                _createCalsBurnedDialog(context, foodDiary);
               },
               icon: Icon(Icons.add, size: 26),
               label:
@@ -145,7 +135,7 @@ class FoodDiaryDetails extends StatelessWidget {
                       builder: (context) => StreamProvider<List<Food>>.value(
                           value: DatabaseService(uid: userId).foods,
                           child: AddMeal(
-                            foodDiaryId: foodDiary.foodDiaryId,
+                            foodDiary: foodDiary,
                             mealId: Uuid().v4().toString(),
                           )),
                     ));
@@ -170,7 +160,56 @@ class FoodDiaryDetails extends StatelessWidget {
     );
   }
 
-  _createCalsBurnedDialog(BuildContext context,FoodDiary foodDiary) {
+  Widget _buildGoalChart(Color color, double savedGoal, String goalLabel) {
+    var caloriesGoal = _createSampleData(color, savedGoal);
+    return Stack(
+      children: <Widget>[
+        charts.PieChart(caloriesGoal,
+            animate: true,
+            defaultRenderer: new charts.ArcRendererConfig(arcWidth: 10)),
+        Center(
+            child: Padding(
+          padding: EdgeInsets.only(bottom: 150),
+          child: Text("$goalLabel",
+          style: TextStyle(color: Colors.black, fontSize: 17.0, fontWeight: FontWeight.bold)),
+        )),
+        Center(
+          child: Text(
+            "${(savedGoal != null) ? (savedGoal * 100).toStringAsFixed(2) + '%' : 'N/A'}",
+            style: TextStyle(
+                fontSize: 30.0,
+                color: Colors.black,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<charts.Series<double, double>> _createSampleData(
+      Color color, double percentage) {
+    List<double> data = [100];
+    if (percentage != null) {
+      data = [percentage, 1 - percentage];
+    }
+
+    return [
+      new charts.Series<double, double>(
+        id: 'Goal',
+        domainFn: (double listPercentage, _) => listPercentage,
+        measureFn: (double listPercentage, _) => listPercentage,
+        colorFn: (double listPercentage, _) {
+          if (listPercentage == percentage) {
+            return charts.ColorUtil.fromDartColor(color);
+          }
+          return charts.ColorUtil.fromDartColor(Colors.blueGrey[200]);
+        },
+        data: data,
+      )
+    ];
+  }
+
+  _createCalsBurnedDialog(BuildContext context, FoodDiary foodDiary) {
     TextEditingController customController = TextEditingController();
     bool _notDouble = false;
     return showDialog(
@@ -189,12 +228,14 @@ class FoodDiaryDetails extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
                   if (double.tryParse(customController.text.toString()) ==
-                        null) {
-                      _notDouble = true;
-                  }else{
+                      null) {
+                    _notDouble = true;
+                  } else {
                     //set calories burned val in databse
-                    foodDiary.caloriesBurned = int.parse(customController.text.toString());
-                    DatabaseService(uid: foodDiary.userId).updateUserData(foodDiary);
+                    foodDiary.caloriesBurned =
+                        int.parse(customController.text.toString());
+                    DatabaseService(uid: foodDiary.userId)
+                        .updateUserData(foodDiary);
                   }
                 },
               )

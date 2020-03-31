@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hello_world/models/calorieGoal.dart';
 import 'package:hello_world/models/fitnessGoal.dart';
@@ -30,28 +32,38 @@ class DatabaseService {
       Firestore.instance.collection("userSettings");
 
   Future updateUserData(FoodDiary foodDiary) async {
-    //set fooddiary id and date vars
     return await foodDiariesCollection.document(foodDiary.foodDiaryId).setData({
       "userId": uid,
       "caloriesBurned": foodDiary.caloriesBurned,
       "foodDiaryDate": DateFormat("yyyy-MM-dd").format(foodDiary.foodDiaryDate),
-      "savedCalorieGoal": null,
-      "savedFatGoal": null,
-      "savedCarbGoal": null,
-      "savedProteinGoal": null,
-      "meals": null,
+      "savedCalorieGoal": foodDiary.savedCalorieGoal,
+      "savedFatGoal": foodDiary.savedFatGoal,
+      "savedCarbGoal": foodDiary.savedCarbGoal,
+      "savedProteinGoal": foodDiary.savedProteinGoal,
     });
   }
 
   Future updateUserSettings(UserSettings userSettings) async {
+    if (userSettings.ongoingFitnessGoal != null){
+      return await userSettingsCollection.document(userSettings.userId).setData({
+        "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+        "isMale": userSettings.isMale,
+        "firstName": userSettings.firstName,
+        "lastName": userSettings.lastName,
+        "height": userSettings.height,
+        "userName": userSettings.userName,
+        "weightEntries": userSettings.weightEntries,
+        "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
+      });
+    }
     return await userSettingsCollection.document(userSettings.userId).setData({
-      "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
-      "isMale": userSettings.isMale,
-      "firstName": userSettings.firstName,
-      "lastName": userSettings.lastName,
-      "height": userSettings.height,
-      "userName": userSettings.userName,
-      "fitnessGoal": userSettings.ongoingFitnessGoal.toJson()
+        "dateOfBirth": DateFormat("yyyy-MM-dd").format(userSettings.dateOfBirth),
+        "isMale": userSettings.isMale,
+        "firstName": userSettings.firstName,
+        "lastName": userSettings.lastName,
+        "height": userSettings.height,
+        "weightEntries": userSettings.weightEntries,
+        "userName": userSettings.userName
     });
   }
 
@@ -95,7 +107,6 @@ class DatabaseService {
       var savedFatGoal = doc.data['savedFatGoal'];
       var savedCarbGoal = doc.data['savedCarbGoal'];
       var savedProteinGoal = doc.data['savedProteinGoal'];
-      //var meals = doc.data['meals'];
 
       return FoodDiary(
           foodDiaryId: doc.documentID,
@@ -105,9 +116,7 @@ class DatabaseService {
           savedCalorieGoal: savedCalorieGoal ?? null,
           savedFatGoal: savedFatGoal ?? null,
           savedCarbGoal: savedCarbGoal ?? null,
-          savedProteinGoal: savedProteinGoal ?? null
-          //meals: meals ?? new List<String>()
-          );
+          savedProteinGoal: savedProteinGoal ?? null);
     }).toList();
   }
 
@@ -183,7 +192,8 @@ class DatabaseService {
       var dateOfBirth = DateTime.parse(doc.data['dateOfBirth']);
       var userName = doc.data['userName'];
       var height = doc.data['height'];
-
+      Map<String, dynamic> weightEntries = doc.data.containsKey('weightEntries') ? new Map<String, dynamic>.from(doc.data['weightEntries']) : new Map<String, dynamic>();
+      Map<String, double> actualWeightEntries = weightEntries != null ? weightEntries.map((key, value) => MapEntry(key, value as double)) : null;
       try {
         var carbsPercentage =
             doc.data['fitnessGoal']['calorieGoal']['carbsPercentage'];
@@ -196,8 +206,8 @@ class DatabaseService {
             fatsPercentage: fatsPercentage,
             proteinPercentage: proteinPercentage);
 
-        var fitnessGoalStartDate = doc.data['fitnessGoal']['startDate'];
-        var fitnessGoalEndDate = doc.data['fitnessGoal']['endDate'];
+        var fitnessGoalStartDate = DateTime.parse(doc.data['fitnessGoal']['startDate']);
+        var fitnessGoalEndDate = DateTime.parse(doc.data['fitnessGoal']['endDate']);
         var fitnessGoalStartWeight = doc.data['fitnessGoal']['startWeight'];
         var fitnessGoalEndWeight = doc.data['fitnessGoal']['endWeight'];
 
@@ -216,6 +226,7 @@ class DatabaseService {
             height: height.toDouble(),
             userName: userName,
             dateOfBirth: dateOfBirth,
+            weightEntries: actualWeightEntries,
             ongoingFitnessGoal: ongoingFitnessGoal);
 
         return userSetting;
@@ -227,6 +238,7 @@ class DatabaseService {
             lastName: lastName,
             height: height.toDouble(),
             userName: userName,
+            weightEntries: actualWeightEntries,
             dateOfBirth: dateOfBirth);
       }
     }).toList();

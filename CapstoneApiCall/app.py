@@ -113,6 +113,7 @@ def sendImage():
 
 @app.route("/search/<searchInput>")
 def searchFood(searchInput):
+    print(searchInput)
     url = "https://trackapi.nutritionix.com/v2/search/instant?query="+searchInput
 
     headers = {'content-type': 'application/json', 'x-app-id' : ACCESS_KEY, 'x-app-key' : SECRET_KEY, 'x-remote-user-id':'0'}
@@ -126,8 +127,13 @@ def searchFood(searchInput):
         x = {
             "brandName": item['brand_name'],
             "foodName": item['food_name'],
-            "nixItem": item['nix_item_id']
+            "nixItem": item['nix_item_id'],
+            "photo": None,
         }
+
+        if not 'highres' in item['photo']:
+            x['photo'] = item['photo']['thumb']
+
         objectList.append(x)
     
     return jsonify(objectList)

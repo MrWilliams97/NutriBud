@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/food.dart';
+import 'package:hello_world/models/meal.dart';
+import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/addManualFood/addFood.dart';
 import 'package:hello_world/screens/home/addManualFood/searchFood.dart';
 import 'package:hello_world/services/database.dart';
@@ -13,11 +15,12 @@ import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:hello_world/models/foodDiary.dart';
 
 class AddMeal extends StatefulWidget {
-  final String foodDiaryId;
+  FoodDiary foodDiary;
   final String mealId;
-  AddMeal({this.foodDiaryId, this.mealId});
+  AddMeal({this.foodDiary, this.mealId});
 
   @override
   _AddMealState createState() => _AddMealState();
@@ -52,7 +55,7 @@ class _AddMealState extends State<AddMeal> {
           for (var food in foodsForMeal) {
             _addFoodItem(food);
           }
-          DatabaseService().addMeal(widget.foodDiaryId, widget.mealId);
+          DatabaseService().addMeal(widget.foodDiary.foodDiaryId, widget.mealId);
         }
       }
     }
@@ -121,15 +124,15 @@ class _AddMealState extends State<AddMeal> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              ButtonOptions(options: options, mealId: widget.mealId)),
-                    );
+                              ButtonOptions(options: options, mealId: widget.mealId, foodDiary: widget.foodDiary)
+                    ));
                   } else if (newValue == "Lookup") {
                     // Go to search screen
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              SearchFood(mealId: widget.mealId),
+                              SearchFood(mealId: widget.mealId, foodDiary: widget.foodDiary),
                         ));
                   } else if (newValue == "Barcode") {
                     //Pushes Barcode Widget
@@ -139,8 +142,16 @@ class _AddMealState extends State<AddMeal> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => AddFood(food: food)),
-                    );
+                          builder: (context) => StreamProvider<List<Meal>>.value(
+                            value: DatabaseService(uid: widget.foodDiary.userId).meals,
+                            child: StreamProvider<List<UserSettings>>.value(
+                              value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                              child: StreamProvider<List<Food>>.value(
+                                value: DatabaseService(uid: widget.foodDiary.userId).foods,
+                                child: AddFood(food: food, foodDiary: widget.foodDiary)
+                              ),
+                          )
+                    )));
                   }
                 },
                 items: [
@@ -215,8 +226,15 @@ class _AddMealState extends State<AddMeal> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddFood(food: food),
-              ));
+                          builder: (context) => StreamProvider<List<Meal>>.value(
+                            value: DatabaseService(uid: widget.foodDiary.userId).meals,
+                            child: StreamProvider<List<UserSettings>>.value(
+                              value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                              child: StreamProvider<List<Food>>.value(
+                                value: DatabaseService(uid: widget.foodDiary.userId).foods,
+                                child: AddFood(food: food, foodDiary: widget.foodDiary)
+                              ),
+                          ))));
         }),
       ]),
     );
@@ -348,7 +366,7 @@ class _AddMealState extends State<AddMeal> {
     String base64Image = base64Encode(imageFile.readAsBytesSync());
     String fileName = imageFile.path.split("/").last;
 
-    var response = await http.post('http://localhost:8000/sendImage', body: {
+    var response = await http.post('http://10.0.3.2:5000/sendImage', body: {
       "image": base64Image,
       "name": fileName,
     });
@@ -370,7 +388,7 @@ class _AddMealState extends State<AddMeal> {
 
   Future<Food> fetchUpc(String upc) async {
     // Need to replace with ngrok for now
-    var url = "http://localhost:8000/retrieveUpc/" + upc;
+    var url = "http://10.0.3.2:5000/retrieveUpc/" + upc;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -448,9 +466,10 @@ class _AddMealState extends State<AddMeal> {
 
 class ButtonOptions extends StatefulWidget {
   List<String> options;
-  String mealId; 
+  String mealId;
+  FoodDiary foodDiary; 
 
-  ButtonOptions({this.options, this.mealId});
+  ButtonOptions({this.options, this.mealId, this.foodDiary});
 
   @override
   _ButtonOptionsState createState() => _ButtonOptionsState();
@@ -467,8 +486,17 @@ class _ButtonOptionsState extends State<ButtonOptions> {
             var food = await getFoodFromName(option.toString());
             Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddFood(food: food)),
-                );
+                  MaterialPageRoute(
+                          builder: (context) => StreamProvider<List<Meal>>.value(
+                            value: DatabaseService(uid: widget.foodDiary.userId).meals,
+                            child: StreamProvider<List<UserSettings>>.value(
+                              value: DatabaseService(uid: widget.foodDiary.userId).userSettings,
+                              child: StreamProvider<List<Food>>.value(
+                                value: DatabaseService(uid: widget.foodDiary.userId).foods,
+                                child: AddFood(food: food, foodDiary: widget.foodDiary)
+                              )),
+                          ),
+                ));
           },
           color: Colors.grey,
           child: Text(option.toString())));
@@ -484,7 +512,7 @@ class _ButtonOptionsState extends State<ButtonOptions> {
   }
 
   Future<Food> getFoodFromName(String name) async {
-    var url = "http://localhost:8000/SampleApiCall/" + name;
+    var url = "http://10.0.3.2:5000/SampleApiCall/" + name;
     print("swag");
     final response = await http.get(url);
 
