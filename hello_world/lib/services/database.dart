@@ -88,8 +88,12 @@ class DatabaseService {
 
   Future addGainRivalsGame(GainRivalsModel model) async {
     return await gainRivalsCollection
-        .document(model.gameName)
-        .setData({"users": model.users});
+        .document(model.gameId)
+        .setData(
+          { 
+            "admin": model.admin,
+            "users": model.users,
+        });
   }
 
   Future addMeal(String foodDiaryId, String mealId) async {
@@ -123,9 +127,13 @@ class DatabaseService {
   List<GainRivalsModel> _gainRivalsFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((doc) {
       //Create GainRivalsModels out of the documents from Firestore
-      var userIds = doc.data['userIds'];
+      var userIds = doc.data['users'];
+      print(userIds.runtimeType);
+      var userIdStrings = userIds.cast<String>();
+      print(userIdStrings.runtimeType);
+      var admin = doc.data['admin'];
 
-      return GainRivalsModel(gameName: doc.documentID, users: userIds);
+      return GainRivalsModel(gameId: doc.documentID, users: userIdStrings, admin: admin);
     }).toList();
   }
 

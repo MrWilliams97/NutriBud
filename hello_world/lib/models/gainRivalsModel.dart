@@ -2,8 +2,9 @@ import 'package:hello_world/models/gainRivalsUser.dart';
 
 class GainRivalsModel {
 
-  final String gameName;
-  final List<GainRivalsUser> users;
+  final String gameId;
+  final String admin;
+  final List<String> users;
 
-  GainRivalsModel({ this.gameName, this.users });
+  GainRivalsModel({ this.gameId, this.admin, this.users });
 }
