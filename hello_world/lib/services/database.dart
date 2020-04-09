@@ -127,9 +127,11 @@ class DatabaseService {
       return await gainRivalsCollection
         .document(gameId)
         .setData(
-          { 
-            "users": userId
-        }, merge: true);
+          {
+            "users": FieldValue.arrayUnion(userId)
+          }, merge: true);
+        
+        
     } else {
       throw ("Game does not exist");
     }
