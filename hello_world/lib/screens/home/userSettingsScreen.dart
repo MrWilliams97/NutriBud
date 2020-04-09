@@ -152,7 +152,7 @@ class _UserSettingsState extends State<UserSettingsScreen> {
     TextEditingController customController = TextEditingController();
     TextEditingController goalWeightController = TextEditingController();
     bool _notDouble = false;
-    DateTime calorieGoalDate = DateTime.now();
+    DateTime calorieGoalDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 1);
     return showDialog(
         context: context,
         builder: (context) {
@@ -180,8 +180,8 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                       onPressed: () async {
                         final DateTime d = await showDatePicker(
                           context: context,
-                          firstDate: DateTime.now(),
-                          initialDate: DateTime.now(),
+                          firstDate: calorieGoalDate,
+                          initialDate: calorieGoalDate,
                           lastDate: DateTime(2022),
                         );
                         if (d != null)
@@ -209,7 +209,7 @@ class _UserSettingsState extends State<UserSettingsScreen> {
                           _notDouble = true;
                         } else {
                           FitnessGoal fitnessGoal = new FitnessGoal(
-                              startDate: DateTime.now(),
+                              startDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
                               endDate: calorieGoalDate,
                               startWeight: double.parse(customController.text),
                               endWeight:
@@ -235,7 +235,7 @@ class _UserSettingsState extends State<UserSettingsScreen> {
 
     var bmr =
         10 * widget.currentUser.ongoingFitnessGoal.startWeight * kgsInPound +
-            6.25 * widget.currentUser.height / 100.0 -
+            6.25 * widget.currentUser.height -
             5 * userAge +
             5;
     
@@ -246,12 +246,30 @@ class _UserSettingsState extends State<UserSettingsScreen> {
     var goalNumberOfDays = widget.currentUser.ongoingFitnessGoal.endDate
         .difference(widget.currentUser.ongoingFitnessGoal.startDate)
         .inDays;
+
     var calorieConsumption = 3500 *
         (widget.currentUser.ongoingFitnessGoal.endWeight -
             widget.currentUser.ongoingFitnessGoal.startWeight) /
         goalNumberOfDays.toDouble();
+
+
     var caloriesNeeded = (bmr + calorieConsumption).floor();
 
+    if (caloriesNeeded < bmr/2.0){
+      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("Unhealthy Goal Detected",
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 18.0)),
+                              content: Text(
+                                  "Unhealthy Goal Not Allowed. Please choose a different goal",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 18.0)),
+                            );
+                          });
+    } else {
     var carbsSelection = 0.0;
     var fatsSelection = 0.0;
     var proteinSelection = 0.0;
@@ -354,6 +372,7 @@ class _UserSettingsState extends State<UserSettingsScreen> {
             );
           });
         });
+    }
   }
 
   @override
