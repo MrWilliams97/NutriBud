@@ -18,8 +18,63 @@ class _GainRivalsState extends State<GainRivals> {
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
 
+    var gainRivalsGames = Provider.of<List<GainRivalsModel>>(context);
+
+    if (user == null || gainRivalsGames == null) {
+      return Container();
+    }
+
+    var participatingGames = gainRivalsGames.where((gainRivalGame) =>
+        gainRivalGame.users.contains(user.uid) &&
+        gainRivalGame.admin != user.uid);
+    var adminGames = gainRivalsGames
+        .where((gainRivalGame) => gainRivalGame.admin == user.uid);
+
+    var adminGamesRows = <DataRow>[];
+    var participatingGamesRows = <DataRow>[];
+
+    for (var adminGame in adminGames) {
+      adminGamesRows.add(DataRow(cells: [
+        DataCell(Text(adminGame.gameId)),
+        DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
+            onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => StreamProvider.value(
+                      value: DatabaseService().gainRivalsGames,
+                      child: StreamProvider.value(
+                          value: DatabaseService().foodDiaries,
+                          child: StreamProvider.value(
+                            value: DatabaseService().userSettings,
+                            child: GameScreen(adminGame.gameId),
+                          )))));
+        })
+      ]));
+    }
+
+    for (var participatingGame in participatingGames) {
+      participatingGamesRows.add(DataRow(cells: [
+        DataCell(Text(participatingGame.gameId)),
+        DataCell(Text('Details', style: TextStyle(color: Colors.lightBlue)),
+            onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => StreamProvider.value(
+                      value: DatabaseService().gainRivalsGames,
+                      child: StreamProvider.value(
+                          value: DatabaseService().foodDiaries,
+                          child: StreamProvider.value(
+                            value: DatabaseService().userSettings,
+                            child: GameScreen(participatingGame.gameId),
+                          )))));
+        })
+      ]));
+    }
+
     return MaterialApp(
-      title: 'Welcome to Flutter',
+      title: 'Welcome to GainRivals',
       home: Scaffold(
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomPadding: false,
@@ -75,21 +130,39 @@ class _GainRivalsState extends State<GainRivals> {
                   shape: new RoundedRectangleBorder(
                       borderRadius: new BorderRadius.circular(18.0),
                       side: BorderSide(color: Colors.red)),
-                  onPressed: () {
-                    /*GainRivalsUser gainRivalsUser = new GainRivalsUser(
-                        username: usernameForUser, userId: user.uid);
-                    List<GainRivalsUser> gainRivalsUsers =
-                        new List<GainRivalsUser>();
-                    gainRivalsUsers.add(gainRivalsUser);
-
-                    GainRivalsModel gainRivalsModel = new GainRivalsModel(
-                        gameName: gameName, users: gainRivalsUsers);
-                    DatabaseService(uid: user.uid)
-                        .addGainRivalsGame(gainRivalsModel);
-                    Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => GameScreen()),
-                          );*/
+                  onPressed: () async {
+                    var userIdList = new List<String>();
+                    userIdList.add(user.uid);
+                    DatabaseService()
+                        .joinGainRivalsGame(userIdList, gameName)
+                        .then((value) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => StreamProvider.value(
+                                value: DatabaseService().gainRivalsGames,
+                                child: StreamProvider.value(
+                                    value: DatabaseService().foodDiaries,
+                                    child: StreamProvider.value(
+                                      value: DatabaseService().userSettings,
+                                      child: GameScreen(gameName),
+                                    )))),
+                      );
+                    }).catchError((e) {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("GainRivals Game Does Not Exist",
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 18.0)),
+                              content: Text(
+                                  "Please insert a valid GainRivals Code",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 18.0)),
+                            );
+                          });
+                    });
                   },
                   color: Colors.red,
                   textColor: Colors.white,
@@ -108,22 +181,40 @@ class _GainRivalsState extends State<GainRivals> {
                   onPressed: () {
                     List<String> initialGameList = new List<String>();
                     initialGameList.add(user.uid);
-                    GainRivalsModel gainRivalsModel = new GainRivalsModel(admin: user.uid, users: initialGameList, gameId: gameName);
-                    DatabaseService().addGainRivalsGame(gainRivalsModel);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => 
-                        StreamProvider.value(
-                          value: DatabaseService().gainRivalsGames,
-                          child: StreamProvider.value(
-                            value: DatabaseService().foodDiaries,
-                            child: StreamProvider.value(
-                              value: DatabaseService().userSettings,
-                              child: GameScreen(gameName),
-                            )
-                          )
-                        )),
-                    );
+                    GainRivalsModel gainRivalsModel = new GainRivalsModel(
+                        admin: user.uid,
+                        users: initialGameList,
+                        gameId: gameName);
+                    DatabaseService()
+                        .addGainRivalsGame(gainRivalsModel)
+                        .then((value) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => StreamProvider.value(
+                                value: DatabaseService().gainRivalsGames,
+                                child: StreamProvider.value(
+                                    value: DatabaseService().foodDiaries,
+                                    child: StreamProvider.value(
+                                      value: DatabaseService().userSettings,
+                                      child: GameScreen(gameName),
+                                    )))),
+                      );
+                    }).catchError((error) {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("GainRivals Game already exists",
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 18.0)),
+                              content: Text(
+                                  "Create Game with different GameID not already in use",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 18.0)),
+                            );
+                          });
+                    });
                   },
                   color: Colors.red,
                   textColor: Colors.white,
@@ -132,6 +223,39 @@ class _GainRivalsState extends State<GainRivals> {
                 )
               ],
             ),
+            SizedBox(height: 10.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[
+                Text("Hosted Games:", style: TextStyle(color: Colors.blueGrey, fontSize: 25.0, fontWeight: FontWeight.bold))],
+            ),
+            DataTable(columns: [
+              DataColumn(
+                  label: Text('GameID',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ))),
+              DataColumn(
+                  label: Text('View Board',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 25))),
+            ], rows: adminGamesRows),
+            SizedBox(height: 5.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[Text("Participating Games:", style: TextStyle(color: Colors.blueGrey, fontSize: 25.0, fontWeight: FontWeight.bold))],
+            ),
+            DataTable(columns: [
+              DataColumn(
+                  label: Text('GameID',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ))),
+              DataColumn(
+                  label: Text('View Board',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 25))),
+            ], rows: participatingGamesRows)
           ],
         ),
       ),

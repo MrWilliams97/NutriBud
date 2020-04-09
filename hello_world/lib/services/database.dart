@@ -87,13 +87,52 @@ class DatabaseService {
   }
 
   Future addGainRivalsGame(GainRivalsModel model) async {
-    return await gainRivalsCollection
+    bool gainRivalsExists = await checkGainRivalsExists(model.gameId);
+
+    if (!gainRivalsExists){
+      return await gainRivalsCollection
         .document(model.gameId)
         .setData(
           { 
             "admin": model.admin,
             "users": model.users,
         });
+    } else {
+      throw ("Game already exists with code");
+    }
+  }
+
+  Future<bool> checkGainRivalsExists (String gameId) async {
+    bool exists = true;
+
+    try {
+      await Firestore.instance.document("gainRivalsGame/$gameId").get().then((doc) {
+        if (doc.exists){
+          exists = true;
+        } else {
+          exists = false;
+        }
+      });
+
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future joinGainRivalsGame(List<String> userId, String gameId) async {
+    bool gainRivalsExists = await checkGainRivalsExists(gameId);
+
+    if (gainRivalsExists){
+      return await gainRivalsCollection
+        .document(gameId)
+        .setData(
+          { 
+            "users": userId
+        }, merge: true);
+    } else {
+      throw ("Game does not exist");
+    }
   }
 
   Future addMeal(String foodDiaryId, String mealId) async {

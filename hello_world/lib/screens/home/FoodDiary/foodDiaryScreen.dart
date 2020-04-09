@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/food.dart';
 import 'package:hello_world/models/foodDiary.dart';
+import 'package:hello_world/models/gainRivalsModel.dart';
 import 'package:hello_world/models/meal.dart';
 import 'package:hello_world/models/userSettings.dart';
 import 'package:hello_world/screens/home/GainRivals/GainRivals.dart';
@@ -135,7 +136,9 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => GainRivals()),
+                      MaterialPageRoute(builder: (context) => StreamProvider<List<GainRivalsModel>>.value(
+                        value: DatabaseService().gainRivalsGames,
+                        child: GainRivals())),
                     );
                   }
                 ),
