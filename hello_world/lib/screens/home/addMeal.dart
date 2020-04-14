@@ -366,7 +366,7 @@ class _AddMealState extends State<AddMeal> {
     String base64Image = base64Encode(imageFile.readAsBytesSync());
     String fileName = imageFile.path.split("/").last;
 
-    var response = await http.post('http://10.0.3.2:5000/sendImage', body: {
+    var response = await http.post('http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/sendImage', body: {
       "image": base64Image,
       "name": fileName,
     });
@@ -388,7 +388,7 @@ class _AddMealState extends State<AddMeal> {
 
   Future<Food> fetchUpc(String upc) async {
     // Need to replace with ngrok for now
-    var url = "http://10.0.3.2:5000/retrieveUpc/" + upc;
+    var url = "http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/retrieveUpc/" + upc;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -512,7 +512,7 @@ class _ButtonOptionsState extends State<ButtonOptions> {
   }
 
   Future<Food> getFoodFromName(String name) async {
-    var url = "http://10.0.3.2:5000/SampleApiCall/" + name;
+    var url = "http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/SampleApiCall/" + name;
     print("swag");
     final response = await http.get(url);
 

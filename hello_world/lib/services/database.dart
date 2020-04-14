@@ -129,9 +129,7 @@ class DatabaseService {
         .setData(
           {
             "users": FieldValue.arrayUnion(userId)
-          }, merge: true);
-        
-        
+          }, merge: true);  
     } else {
       throw ("Game does not exist");
     }

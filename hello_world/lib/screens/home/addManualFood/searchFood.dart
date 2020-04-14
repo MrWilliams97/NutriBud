@@ -106,7 +106,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<List<dynamic>> fetchSearchOptions(String searchInput) async {
-    var url = "http://10.0.3.2:5000/search/" + searchInput;
+    var url = "http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/search/" + searchInput;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -118,7 +118,7 @@ class _SearchFoodState extends State<SearchFood> {
   }
 
   Future<Food> fetchFood(String nutritionixId) async {
-    var url = "http://10.0.3.2:5000/retrieveFood/" + nutritionixId;
+    var url = "http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/retrieveFood/" + nutritionixId;
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
