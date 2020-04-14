@@ -179,7 +179,7 @@ class _FoodDiaryScreenState extends State<FoodDiaryScreen> {
           child: Text(
             DateFormat("yyyy-MM-dd").format(diaryDate),
             style: TextStyle(
-                color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
+                color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold),
           ))
     ];
 

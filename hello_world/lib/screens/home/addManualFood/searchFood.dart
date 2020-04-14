@@ -108,6 +108,7 @@ class _SearchFoodState extends State<SearchFood> {
   Future<List<dynamic>> fetchSearchOptions(String searchInput) async {
     var url = "http://ec2-3-15-19-52.us-east-2.compute.amazonaws.com/search/" + searchInput;
     final response = await http.get(url);
+    
 
     if (response.statusCode == 200) {
       List<dynamic> searchOptions = json.decode(response.body);
