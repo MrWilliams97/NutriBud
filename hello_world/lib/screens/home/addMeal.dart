@@ -117,7 +117,7 @@ class _AddMealState extends State<AddMeal> {
                 style: TextStyle(color: Colors.black),
                 onChanged: (String newValue) async {
                   if (newValue == "Camera") {
-                    _openCamera(context);
+                    await _openCamera(context);
                     // Go to camera screen
                     var options = await fetchOptions();
                     Navigator.push(
