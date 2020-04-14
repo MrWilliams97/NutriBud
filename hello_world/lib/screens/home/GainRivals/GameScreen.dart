@@ -93,13 +93,15 @@ class GameScreen extends StatelessWidget {
     var sortedKeys = gainRivalsScores.keys.toList(growable: false)
       ..sort((k1, k2) => gainRivalsScores[k1].compareTo(gainRivalsScores[k2]));
 
+    
+
     var sortedScores = LinkedHashMap.fromIterable(sortedKeys,
         key: (k) => k, value: (k) => gainRivalsScores[k]);
 
     var leaderboardRows = sortedScores.keys
         .map((user) =>
             _leaderboardRow(gainRivalsUsernames[user], sortedScores[user]))
-        .toList();
+        .toList().reversed.toList();
 
     return Scaffold(
         resizeToAvoidBottomPadding: false,
